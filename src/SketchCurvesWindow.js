@@ -292,14 +292,16 @@ export default function SketchCurvesWindow() {
   }, [draw]);
 
   return (
-    <div style={{ display: 'flex', gap: 24 }}>
+    <div className="CanvasBox">
       <canvas
         ref={canvasRef}
-        style={{ border: '1px solid #ccc', background: '#fff', width: 540, height: 540 }}
         width={settings.dimensions[0]}
         height={settings.dimensions[1]}
+        style={{
+          display: 'block'
+        }}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div>
         <div ref={paneRef} style={{ minWidth: 320 }} />
         <button 
           onClick={downloadCanvas}

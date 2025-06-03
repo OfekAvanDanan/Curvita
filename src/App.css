@@ -1,69 +1,81 @@
+/* General values */
 body {
   font-family: "Montserrat", sans-serif;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
   background: linear-gradient(145deg, #0d0d0f, #18191b);
   margin: 0;
   padding: 0;
-
-  
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
+/* Glass panel design */
 .glassy-panel {
-  background: rgba(255, 255, 255, 0.05); /* subtle light layer */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* frosted edge */
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25); /* visionOS-like float */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border-radius: 16px;
   padding: 2rem;
   color: #fff;
   transition: all 0.3s ease-in-out;
+  max-width: 1506px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Optional: Light hover interaction */
+/* Hover effect */
 .glassy-panel:hover {
   background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 0 40px rgba(255, 255, 255, 0.03), 0 0 60px rgba(0, 0, 0, 0.35);
 }
 
-/* Example parent background */
-body {
-  background: linear-gradient(145deg, #0d0d0f, #18191b);
-  color: white;
-  font-family: 'SF Pro Text', 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 2rem;
-}
-
-.App{
+/* Main structure */
+.App {
   display: flex;
   flex-direction: column;
   gap: 20pt;
   justify-content: center;
-}
-
-.Title{
+  align-items: center;
   width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Title */
+.Title {
   display: flex;
-  gap: 20pt;
+  align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 16pt;
+  text-align: center;
 }
 
-h1{
-  font-size: 72pt;
-  line-height: 0%;
+h1 {
+  font-size: 48pt;
+  line-height: 1;
+  margin: 0;
 }
 
-#main-logo{
+#main-logo {
   height: 50pt;
 }
 
-#app-icon{
-  width: 50pt;
+#app-icon {
+  width: 48pt;
+}
+
+/* Canvas */
+.CanvasBox {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  margin: 20px 0;
 }
 
 .CanvasBox canvas {
@@ -73,12 +85,13 @@ h1{
   border-radius: 16px;
 }
 
+/* Text */
 .tagline {
   text-align: center;
   font-size: 1.05rem;
-  opacity: 0.8;
+  opacity: 0.85;
   margin: 0.5rem 0 1rem;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .info {
@@ -88,6 +101,7 @@ h1{
   margin-top: 1.5rem;
 }
 
+/* Buttons */
 .button {
   font-family: "Montserrat", sans-serif;
   padding: 0.5rem 1.2rem;
@@ -99,17 +113,17 @@ h1{
   -webkit-backdrop-filter: blur(10px);
   transition: background-color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
 }
 
-.button:hover{
+.button:hover {
   transform: scale(1.02);
 }
 
-:button:active{
+.button:active {
   transform: scale(0.97);
 }
-
-
 
 #green {
   background-color: #24b64b;
@@ -122,4 +136,55 @@ h1{
 
 #green:active {
   background-color: #2db451;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+
+  .glassy-panel {
+    padding: 1.2rem;
+  }
+
+  h1 {
+    font-size: 36pt;
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+  }
+
+  .info {
+    font-size: 0.75rem;
+  }
+
+  #main-logo {
+    height: 40pt;
+  }
+
+  #app-icon {
+    width: 40pt;
+  }
+}
+
+/* Desktop layout */
+@media (min-width: 769px) {
+  .CanvasBox {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .CanvasBox canvas {
+    width: 540px;
+    height: 540px;
+  }
+
+  .CanvasBox > div {
+    flex: 1;
+    min-width: 320px;
+  }
 }
