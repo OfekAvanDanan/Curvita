@@ -1,6 +1,6 @@
 import { Pane } from 'tweakpane';
 import { plugins as EssentialsPlugins } from '@tweakpane/plugin-essentials';
-import { PARAMS } from './params.js';
+import { PARAMS, settings } from './params.js';
 import { Curve } from './classes/Curve.js';
 
 export class TweakpaneUI {
@@ -23,6 +23,9 @@ export class TweakpaneUI {
     const pane = new Pane({ container: this.paneRef.current });
     pane.registerPlugin(EssentialsPlugins);
 
+    // Add background color control at the top level
+    
+
     const f1 = pane.addFolder({ title: 'Editor', expanded: true });
     const currentSet = PARAMS.sets[PARAMS.currSet];
     
@@ -30,6 +33,10 @@ export class TweakpaneUI {
     const f2 = f1.addFolder({
       title: `Edit Mode: ${currentSet.name} (${PARAMS.currSet}/${PARAMS.sets.length - 1})`,
       expanded: true,
+    });
+
+    f1.addBinding(settings, 'backgroundColor', { view: 'color', label: 'Background Color' }).on('change', () => {
+      if (this.onDraw) this.onDraw();
     });
 
     // Edit Mode toggle

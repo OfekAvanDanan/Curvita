@@ -9,7 +9,7 @@ export const PARAMS = {
       name: 'Curve 0',
       curve: new Curve({
         points: [
-          new Point({ x: 0, y: 0 }),
+          new Point({ x: 20, y: 20 }),
           new Point({ x: 540, y: 540 }),
           new Point({ x: 900, y: 540 }),
         ],
@@ -48,4 +48,5 @@ export const PARAMS = {
 export const settings = {
   dimensions: [1080, 1080],
   animate: PARAMS.editMode,
+  backgroundColor: '#ffffff'
 }; 

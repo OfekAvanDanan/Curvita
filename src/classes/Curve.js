@@ -5,8 +5,6 @@
 // This file contains the Curve class, which manages Bezier curves, their parallels, and all related geometry.
 // All methods and helpers are documented for maintainability.
 
-import * as math from 'canvas-sketch-util/math';
-import { Point } from './Point.js';
 import { GUIDE_LINE_STYLE, POINT_STYLE } from '../curveStyle.js';
 
 /**

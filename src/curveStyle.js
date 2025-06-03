@@ -1,7 +1,7 @@
 // curveStyle.js - Centralized style/theme for Sketch Curves React
 // All UX and style properties for points, guides, curves, etc.
 
-const fillStyle = 'rgba(255, 255, 255, 0.8)';
+const fillStyle = 'rgba(255, 255, 255, 0.5)';
 const radius = 16;
 
 const shadowColor = 'rgba(0,0,0,0.25)';

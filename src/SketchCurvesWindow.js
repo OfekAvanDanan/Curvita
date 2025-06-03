@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { Point } from './classes/Point.js';
-import { Curve, getCurve } from './classes/Curve.js';
+import { getCurve } from './classes/Curve.js';
 import { SELECTED_LINE_CURVE } from "./curveStyle.js";
 import { PARAMS, settings } from './params.js';
 import { TweakpaneUI } from './TweakpaneUI.js';
@@ -10,6 +10,9 @@ export default function SketchCurvesWindow() {
   const paneRef = useRef(null);
   const animationRef = useRef();
   const tweakpaneUI = useRef();
+  const prevPointIndexRef = useRef(-1);
+  const mouseMoveHandlerRef = useRef(null);
+  const mouseUpHandlerRef = useRef(null);
 
   // Helper to get canvas context
   const getContext = () => {
@@ -18,13 +21,13 @@ export default function SketchCurvesWindow() {
   };
 
   // Redraw function
-  const draw = () => {
+  const draw = useCallback(() => {
     const context = getContext();
     if (!context) return;
     const width = settings.dimensions[0];
     const height = settings.dimensions[1];
     context.clearRect(0, 0, width, height);
-    context.fillStyle = 'white';
+    context.fillStyle = settings.backgroundColor;
     context.fillRect(0, 0, width, height);
 
     // Draw all curves first
@@ -73,19 +76,42 @@ export default function SketchCurvesWindow() {
       curve.drawAllPoints(context);
       context.restore();
     }
-  };
+  }, []);
 
   // Animation loop
-  const animate = () => {
+  const animate = useCallback(() => {
     draw();
     if (settings.animate) {
       animationRef.current = requestAnimationFrame(animate);
     }
-  };
+  }, [draw]);
 
-  let prevPointIndex = -1;
   // Mouse event handlers
-  const onMouseDown = (e) => {
+  const onMouseMove = useCallback((e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+    const curve = PARAMS.sets[PARAMS.currSet].curve;
+    curve.points.forEach((point) => {
+      if (point.isDragging && PARAMS.editMode) {
+        point.x = x;
+        point.y = y;
+      }
+    });
+    curve.updateMidPoints();
+    if (curve.getParNum() >= 2) {
+      curve.updateParallels(true);
+    }
+    draw();
+  }, [draw]);
+
+  const onMouseUp = useCallback(() => {
+    window.removeEventListener('mousemove', mouseMoveHandlerRef.current);
+    window.removeEventListener('mouseup', mouseUpHandlerRef.current);
+  }, []);
+
+  const onMouseDown = useCallback((e) => {
     if (!PARAMS.editMode) return;
 
     const canvas = canvasRef.current;
@@ -146,7 +172,7 @@ export default function SketchCurvesWindow() {
 
     // Update previous point index if we clicked on a point
     if (clickedPointIndex !== -1) {
-      prevPointIndex = clickedPointIndex;
+      prevPointIndexRef.current = clickedPointIndex;
     }
 
     if (clickedPoint) {
@@ -169,7 +195,7 @@ export default function SketchCurvesWindow() {
       const newPoint = new Point({ x, y });
 
       // If the first point was selected, add new point before it
-      if (prevPointIndex === 0) {
+      if (prevPointIndexRef.current === 0) {
         curve.points.unshift(newPoint);
       } else {
         curve.points.push(newPoint);
@@ -191,33 +217,11 @@ export default function SketchCurvesWindow() {
     }
 
     draw();
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
-
-  const onMouseMove = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
-    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
-    const curve = PARAMS.sets[PARAMS.currSet].curve;
-    curve.points.forEach((point) => {
-      if (point.isDragging && PARAMS.editMode) {
-        point.x = x;
-        point.y = y;
-      }
-    });
-    curve.updateMidPoints();
-    if (curve.getParNum() >= 2) {
-      curve.updateParallels(true);
-    }
-    draw();
-  };
-
-  const onMouseUp = () => {
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('mouseup', onMouseUp);
-  };
+    mouseMoveHandlerRef.current = onMouseMove;
+    mouseUpHandlerRef.current = onMouseUp;
+    window.addEventListener('mousemove', mouseMoveHandlerRef.current);
+    window.addEventListener('mouseup', mouseUpHandlerRef.current);
+  }, [draw, onMouseMove, onMouseUp]);
 
   // Add context menu prevention
   useEffect(() => {
@@ -253,12 +257,39 @@ export default function SketchCurvesWindow() {
     
     return () => {
       canvas.removeEventListener('mousedown', onMouseDown);
-      cancelAnimationFrame(animationRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       if (tweakpaneUI.current) {
         tweakpaneUI.current.dispose();
       }
     };
-  }, []);
+  }, [draw, onMouseDown, animate]);
+
+  const downloadCanvas = useCallback(() => {
+    // Store current edit mode state
+    const wasEditMode = PARAMS.editMode;
+    
+    // Temporarily disable edit mode
+    PARAMS.editMode = false;
+    
+    // Redraw without guides
+    draw();
+    
+    // Get the canvas data URL
+    const canvas = canvasRef.current;
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.download = 'curvita-design.png';
+    link.href = dataURL;
+    link.click();
+    
+    // Restore edit mode state
+    PARAMS.editMode = wasEditMode;
+    draw();
+  }, [draw]);
 
   return (
     <div style={{ display: 'flex', gap: 24 }}>
@@ -268,7 +299,15 @@ export default function SketchCurvesWindow() {
         width={settings.dimensions[0]}
         height={settings.dimensions[1]}
       />
-      <div ref={paneRef} style={{ minWidth: 320 }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div ref={paneRef} style={{ minWidth: 320 }} />
+        <button 
+          onClick={downloadCanvas}
+          className='button' id="green"
+        >
+          Download Design
+        </button>
+      </div>
     </div>
   );
 }
