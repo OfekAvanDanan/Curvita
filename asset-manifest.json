@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Curvita/static/css/main.e6c13ad2.css",
+    "main.js": "/Curvita/static/js/main.0af9e274.js",
+    "static/js/453.e3e283b3.chunk.js": "/Curvita/static/js/453.e3e283b3.chunk.js",
+    "index.html": "/Curvita/index.html",
+    "main.e6c13ad2.css.map": "/Curvita/static/css/main.e6c13ad2.css.map",
+    "main.0af9e274.js.map": "/Curvita/static/js/main.0af9e274.js.map",
+    "453.e3e283b3.chunk.js.map": "/Curvita/static/js/453.e3e283b3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.0af9e274.js"
+  ]
+}
