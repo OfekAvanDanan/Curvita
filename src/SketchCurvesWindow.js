@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { Pane } from 'tweakpane';
 import { plugins as EssentialsPlugins } from '@tweakpane/plugin-essentials';
-import * as math from 'canvas-sketch-util/math';
-import { Point, doSegmentsIntersect } from './classes/Point.js';
-import { Curve, ParallelCurveToLine, getCurve } from './classes/Curve.js';
+import { Point } from './classes/Point.js';
+import { Curve } from './classes/Curve.js';
 
 const PARAMS = {
   editMode: true,

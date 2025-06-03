@@ -1,12 +1,13 @@
-// Curve.js - Bezier curve and parallel logic for Sketch Curves React
+// curveStyle.js - Bezier curve and parallel logic for Sketch Curves React
 // Restored and documented for clarity (2024)
 // Author: [Your Name or Team]
 //
 // This file contains the Curve class, which manages Bezier curves, their parallels, and all related geometry.
 // All methods and helpers are documented for maintainability.
 
-const math = require('canvas-sketch-util/math');
-const { Point } = require('./Point.js');
+import * as math from 'canvas-sketch-util/math';
+import { Point } from './Point.js';
+import { GUIDE_LINE_STYLE, POINT_STYLE } from '../curveStyle.js';
 
 /**
  * Linear interpolation between a and b by t
@@ -22,7 +23,7 @@ function lerp(a, b, t) {
  * @param {number} t
  * @returns {{x:number, y:number}}
  */
-function getCurve(points, t) {
+export function getCurve(points, t) {
   let pts = points.map((p) => ({ x: p.x, y: p.y }));
   while (pts.length > 1) {
     let next = [];
@@ -45,7 +46,7 @@ function getCurve(points, t) {
  * @param {number} d
  * @returns {[{x:number, y:number}, {x:number, y:number}]}
  */
-function ParallelCurveToLine(p0, p1, d) {
+export function ParallelCurveToLine(p0, p1, d) {
   const dx = p1.x - p0.x;
   const dy = p1.y - p0.y;
   const len = Math.sqrt(dx * dx + dy * dy);
@@ -61,7 +62,7 @@ function ParallelCurveToLine(p0, p1, d) {
 /**
  * Curve class manages a set of control points, Bezier evaluation, parallels, and drawing.
  */
-class Curve {
+export class Curve {
   /**
    * @param {{points: Point[]}} param0
    */
@@ -173,13 +174,13 @@ class Curve {
   drawGuides(ctx) {
     if (!ctx || this.points.length < 2) return;
     ctx.save();
-    ctx.strokeStyle = '#aaa';
-    ctx.lineWidth = 5;
-    ctx.setLineDash([20, 5]);
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.73)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 4;
-    ctx.shadowOffsetY = 4;
+    ctx.strokeStyle = GUIDE_LINE_STYLE.strokeStyle;
+    ctx.lineWidth = GUIDE_LINE_STYLE.lineWidth;
+    ctx.setLineDash(GUIDE_LINE_STYLE.lineDash);
+    ctx.shadowColor = GUIDE_LINE_STYLE.shadowColor;
+    ctx.shadowBlur = GUIDE_LINE_STYLE.shadowBlur;
+    ctx.shadowOffsetX = GUIDE_LINE_STYLE.shadowOffsetX;
+    ctx.shadowOffsetY = GUIDE_LINE_STYLE.shadowOffsetY;
     ctx.beginPath();
     ctx.moveTo(this.points[0].x, this.points[0].y);
     for (let i = 1; i < this.points.length; i++) {
@@ -198,15 +199,14 @@ class Curve {
     ctx.save();
     for (const pt of this.points) {
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
-      ctx.fillStyle = pt.type === 0 ? 'red' : 'blue';
+      const style = pt.type === 0 ? POINT_STYLE.normal : POINT_STYLE.mid;
+      ctx.arc(pt.x, pt.y, style.radius, 0, Math.PI * 2);
+      ctx.fillStyle = style.fillStyle;
       ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = style.strokeStyle;
+      ctx.lineWidth = style.lineWidth;
       ctx.stroke();
     }
     ctx.restore();
   }
-}
-
-module.exports = { Curve, ParallelCurveToLine, getCurve }; 
+} 

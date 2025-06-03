@@ -9,7 +9,7 @@
  * Point class represents a control point on a curve.
  * type: 0 = normal, 1 = mid, etc.
  */
-class Point {
+export class Point {
   /**
    * @param {{x:number, y:number, type?:number}} param0
    */
@@ -43,7 +43,7 @@ class Point {
  * @param {{x:number, y:number}} q2
  * @returns {boolean}
  */
-function doSegmentsIntersect(p1, p2, q1, q2) {
+export function doSegmentsIntersect(p1, p2, q1, q2) {
   function ccw(a, b, c) {
     return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
   }
@@ -51,6 +51,4 @@ function doSegmentsIntersect(p1, p2, q1, q2) {
     ccw(p1, q1, q2) !== ccw(p2, q1, q2) &&
     ccw(p1, p2, q1) !== ccw(p1, p2, q2)
   );
-}
-
-module.exports = { Point, doSegmentsIntersect }; 
+} 
