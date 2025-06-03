@@ -199,7 +199,8 @@ export class Curve {
     ctx.save();
     for (const pt of this.points) {
       ctx.beginPath();
-      const style = pt.type === 0 ? POINT_STYLE.normal : POINT_STYLE.mid;
+      const style = pt.isSelected ? POINT_STYLE.selected : 
+                   (pt.type === 0 ? POINT_STYLE.normal : POINT_STYLE.mid);
       ctx.arc(pt.x, pt.y, style.radius, 0, Math.PI * 2);
       ctx.fillStyle = style.fillStyle;
       ctx.fill();

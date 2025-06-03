@@ -2,7 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { Pane } from 'tweakpane';
 import { plugins as EssentialsPlugins } from '@tweakpane/plugin-essentials';
 import { Point } from './classes/Point.js';
-import { Curve } from './classes/Curve.js';
+import { Curve, getCurve } from './classes/Curve.js';
+import { SELECTED_LINE_CURVE } from "./curveStyle.js"
 
 const PARAMS = {
   editMode: true,
@@ -70,6 +71,8 @@ export default function SketchCurvesWindow() {
     context.clearRect(0, 0, width, height);
     context.fillStyle = 'white';
     context.fillRect(0, 0, width, height);
+
+    // Draw all curves first
     for (let i = 0; i < PARAMS.sets.length; i++) {
       const set = PARAMS.sets[i];
       const curve = set.curve;
@@ -84,6 +87,8 @@ export default function SketchCurvesWindow() {
         }
       }
     }
+
+    // If in edit mode, draw the selected curve with highlight
     if (PARAMS.editMode) {
       const set = PARAMS.sets[PARAMS.currSet];
       const curve = set.curve;
@@ -91,8 +96,25 @@ export default function SketchCurvesWindow() {
         curve.updateParallels(true);
       }
       context.save();
-      curve.drawCurve(context, true, 'white', set.lineWidth * 3 + 10, set.lineCap);
-      curve.drawCurve(context, true, set.color, set.lineWidth * 1.1, set.lineCap);
+      context.shadowColor = SELECTED_LINE_CURVE.shadowColor;
+      context.shadowBlur = SELECTED_LINE_CURVE.shadowBlur;
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
+
+      // Draw highlight behind the curve
+      curve.drawCurve(
+        context,
+        true,
+        SELECTED_LINE_CURVE.strokeStyle,
+        set.lineWidth + SELECTED_LINE_CURVE.lineWidth,
+        SELECTED_LINE_CURVE.lineCap
+      );
+
+
+      context.shadowColor = 'transparent';
+      context.shadowBlur = 0;
+      // Draw the actual curve on top
+      curve.drawCurve(context, true, set.color, set.lineWidth, set.lineCap);
       curve.drawGuides(context);
       curve.drawAllPoints(context);
       context.restore();
@@ -107,32 +129,123 @@ export default function SketchCurvesWindow() {
     }
   };
 
+  let prevPointIndex = -1;
   // Mouse event handlers
   const onMouseDown = (e) => {
     if (!PARAMS.editMode) return;
+
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
     const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
-    const curve = PARAMS.sets[PARAMS.currSet].curve;
-    let hit = false;
-    curve.points.forEach((point) => {
-      point.isDragging = point.hitTest(x, y);
-      if (!hit && point.isDragging && point.type === 0) {
-        hit = true;
+
+    // First check if we clicked on any curve
+    // First check if we clicked on any curve
+    let clickedCurveIndex = -1;
+    for (let i = 0; i < PARAMS.sets.length; i++) {
+      const curve = PARAMS.sets[i].curve;
+      // אם אין כלל נקודות או פחות משתי נקודות, מדלגים על הבדיקה
+      if (curve.points.length < 2) continue;
+
+      // Check if click is near the curve
+      for (let t = 0; t <= 1; t += 0.01) {
+        const p = getCurve(curve.points, t);
+        const dx = p.x - x;
+        const dy = p.y - y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 20) { // 20 pixels threshold
+          clickedCurveIndex = i;
+          break;
+        }
       }
-    });
-    if (!hit) {
-      curve.points.push(new Point({ x, y }));
+      if (clickedCurveIndex !== -1) break;
+    }
+
+
+    // If we clicked on a curve, select it
+    if (clickedCurveIndex !== -1 && clickedCurveIndex !== PARAMS.currSet) {
+      PARAMS.currSet = clickedCurveIndex;
+      // Update tweakpane with new curve properties
+      const set = PARAMS.sets[PARAMS.currSet];
+      PARAMS.currColor = set.color;
+      PARAMS.currLineWidth = set.lineWidth;
+      PARAMS.currLineCap = set.lineCap;
+      PARAMS.currNumOfPar = set.curve.getParNum();
+      PARAMS.currDisOfPar = set.curve.getParDis();
+      if (paneInstance.current) {
+        paneInstance.current.refresh();
+      }
+      draw();
+      return;
+    }
+
+    const curve = PARAMS.sets[PARAMS.currSet].curve;
+
+    // First, check if we clicked on any existing point
+    let clickedPoint = null;
+    let clickedPointIndex = -1;
+    for (let i = 0; i < curve.points.length; i++) {
+      const point = curve.points[i];
+      if (point.hitTest(x, y)) {
+        clickedPoint = point;
+        clickedPointIndex = i;
+        break;
+      }
+    }
+
+    // Update previous point index if we clicked on a point
+    if (clickedPointIndex !== -1) {
+      prevPointIndex = clickedPointIndex;
+    }
+
+    if (clickedPoint) {
+      if (e.button === 2) { // Right click
+        // Delete the point
+        curve.points.splice(clickedPointIndex, 1);
+        curve.updateMidPoints();
+        if (PARAMS.currNumOfPar >= 2) {
+          curve.updateParallels(true);
+        }
+      } else { // Left click
+        // If we clicked on a point, deselect all points and select this one
+        curve.points.forEach(p => {
+          p.isSelected = false;
+          p.isDragging = false;
+        });
+        clickedPoint.isSelected = true;
+        clickedPoint.isDragging = true;
+      }
+    } else {
+      // If we didn't click on any point, create a new one
+      const newPoint = new Point({ x, y });
+
+      // If the first point was selected, add new point before it
+      if (prevPointIndex === 0) {
+        curve.points.unshift(newPoint);
+      } else {
+        curve.points.push(newPoint);
+      }
+
+      // Reset selection for all points
+      curve.points.forEach(p => {
+        p.isSelected = false;
+        p.isDragging = false;
+      });
+
+      // Select the new point
+      newPoint.isSelected = true;
+
       curve.updateMidPoints();
       if (PARAMS.currNumOfPar >= 2) {
         curve.updateParallels(true);
       }
-      draw();
     }
+
+    draw();
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
   };
+
   const onMouseMove = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -151,6 +264,7 @@ export default function SketchCurvesWindow() {
     }
     draw();
   };
+
   const onMouseUp = () => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
@@ -180,11 +294,14 @@ export default function SketchCurvesWindow() {
         draw();
       }
     });
+    const curveOptions = {};
+    PARAMS.sets.forEach((_, idx) => {
+      curveOptions[`Curve ${idx}`] = idx;
+    });
+
     f1.addBinding(PARAMS, 'currSet', {
       label: 'Current Curve',
-      min: 0,
-      max: PARAMS.sets.length - 1,
-      step: 1,
+      options: curveOptions,
     }).on('change', () => {
       f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
       updateInputs();
@@ -246,6 +363,7 @@ export default function SketchCurvesWindow() {
       pane.refresh();
       f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
       updateInputs();
+      createPane();
       draw();
     });
     f1.addButton({ title: 'Add a new curve' }).on('click', () => {
@@ -254,6 +372,7 @@ export default function SketchCurvesWindow() {
       pane.refresh();
       f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
       updateInputs();
+      createPane();
       draw();
     });
     f2.hidden = !PARAMS.editMode;
@@ -265,6 +384,7 @@ export default function SketchCurvesWindow() {
       PARAMS.currNumOfPar = set.curve.getParNum();
       PARAMS.currDisOfPar = set.curve.getParDis();
       pane.refresh();
+
     }
     paneInstance.current = pane;
   };
@@ -281,6 +401,18 @@ export default function SketchCurvesWindow() {
       pairDouble: [],
     });
   };
+
+  // Add context menu prevention
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const preventContextMenu = (e) => {
+      e.preventDefault();
+    };
+    canvas.addEventListener('contextmenu', preventContextMenu);
+    return () => {
+      canvas.removeEventListener('contextmenu', preventContextMenu);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;

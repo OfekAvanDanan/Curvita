@@ -22,6 +22,8 @@ export class Point {
     this.type = type; // 0: normal, 1: mid, etc.
     /** @type {boolean} */
     this.isDragging = false;
+    /** @type {boolean} */
+    this.isSelected = false;
   }
   /**
    * Hit test: returns true if (x, y) is within 10px of this point.
