@@ -46,7 +46,7 @@ export const PARAMS = {
 
 // Application settings
 export const settings = {
-  dimensions: [1080, 1080],
+  dimensions: [900, 900],
   animate: PARAMS.editMode,
   backgroundColor: '#ffffff'
 }; 
