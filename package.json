@@ -2,7 +2,7 @@
   "name": "curvita",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ofekavandanan.github.io/curvita",
+  "homepage": "https://ofekavandanan.github.io/Curvita",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
