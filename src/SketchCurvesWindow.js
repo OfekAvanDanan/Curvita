@@ -1,3 +1,16 @@
+/**
+ * SketchCurvesWindow Component
+ * 
+ * A React component that provides an interactive canvas for drawing and editing curves.
+ * Features include:
+ * - Drawing and editing Bezier curves
+ * - Adding parallel lines to curves
+ * - Customizing curve properties (color, width, cap style)
+ * - Downloading designs as PNG
+ * 
+ * @component
+ */
+
 import React, { useRef, useEffect, useCallback } from 'react';
 import { Point } from './classes/Point.js';
 import { getCurve } from './classes/Curve.js';
@@ -6,6 +19,7 @@ import { PARAMS, settings } from './params.js';
 import { TweakpaneUI } from './TweakpaneUI.js';
 
 export default function SketchCurvesWindow() {
+  // Refs for canvas, UI elements, and animation
   const canvasRef = useRef(null);
   const paneRef = useRef(null);
   const animationRef = useRef();
@@ -14,13 +28,18 @@ export default function SketchCurvesWindow() {
   const mouseMoveHandlerRef = useRef(null);
   const mouseUpHandlerRef = useRef(null);
 
-  // Helper to get canvas context
+  /**
+   * Helper function to get canvas context
+   * @returns {CanvasRenderingContext2D|null} The canvas context or null if not available
+   */
   const getContext = () => {
     const canvas = canvasRef.current;
     return canvas ? canvas.getContext('2d') : null;
   };
 
-  // Redraw function
+  /**
+   * Redraws the entire canvas with all curves and guides
+   */
   const draw = useCallback(() => {
     const context = getContext();
     if (!context) return;
@@ -78,7 +97,9 @@ export default function SketchCurvesWindow() {
     }
   }, []);
 
-  // Animation loop
+  /**
+   * Animation loop for continuous updates
+   */
   const animate = useCallback(() => {
     draw();
     if (settings.animate) {
@@ -86,7 +107,10 @@ export default function SketchCurvesWindow() {
     }
   }, [draw]);
 
-  // Mouse event handlers
+  /**
+   * Handles mouse movement for dragging points
+   * @param {MouseEvent} e - The mouse event
+   */
   const onMouseMove = useCallback((e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -106,11 +130,18 @@ export default function SketchCurvesWindow() {
     draw();
   }, [draw]);
 
+  /**
+   * Handles mouse up event to stop dragging
+   */
   const onMouseUp = useCallback(() => {
     window.removeEventListener('mousemove', mouseMoveHandlerRef.current);
     window.removeEventListener('mouseup', mouseUpHandlerRef.current);
   }, []);
 
+  /**
+   * Handles mouse down event for point selection and creation
+   * @param {MouseEvent} e - The mouse event
+   */
   const onMouseDown = useCallback((e) => {
     if (!PARAMS.editMode) return;
 
@@ -235,6 +266,7 @@ export default function SketchCurvesWindow() {
     };
   }, []);
 
+  // Initialize canvas and event listeners
   useEffect(() => {
     const canvas = canvasRef.current;
     canvas.width = settings.dimensions[0];
@@ -266,6 +298,9 @@ export default function SketchCurvesWindow() {
     };
   }, [draw, onMouseDown, animate]);
 
+  /**
+   * Downloads the current canvas state as a PNG image
+   */
   const downloadCanvas = useCallback(() => {
     // Store current edit mode state
     const wasEditMode = PARAMS.editMode;
