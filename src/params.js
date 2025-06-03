@@ -1,50 +1,52 @@
-/**
- * Global Parameters and Settings
- * 
- * This file contains all the global parameters and settings used throughout the application.
- * It includes settings for the canvas, curve properties, and UI controls.
- */
+import { Point } from './classes/Point.js';
+import { Curve } from './classes/Curve.js';
 
-/**
- * Canvas and application settings
- * @type {Object}
- */
-export const settings = {
-  /** Canvas dimensions [width, height] */
-  dimensions: [800, 600],
-  /** Background color of the canvas */
-  backgroundColor: '#ffffff',
-  /** Whether to animate the canvas */
-  animate: true
-};
-
-/**
- * Global parameters for curve manipulation
- * @type {Object}
- */
+// Default parameters for the application
 export const PARAMS = {
-  /** Current curve set being edited */
-  currSet: 0,
-  /** Whether edit mode is enabled */
   editMode: true,
-  /** Current stroke color */
-  currColor: '#000000',
-  /** Current line width */
-  currLineWidth: 2,
-  /** Current line cap style */
-  currLineCap: 'butt',
-  /** Number of parallel lines */
-  currNumOfPar: 0,
-  /** Distance between parallel lines */
-  currDisOfPar: 10,
-  /** Array of curve sets */
   sets: [
     {
       name: 'Curve 0',
-      curve: new Curve(),
+      curve: new Curve({
+        points: [
+          new Point({ x: 20, y: 20 }),
+          new Point({ x: 540, y: 540 }),
+          new Point({ x: 900, y: 540 }),
+        ],
+      }),
       color: '#000000',
-      lineWidth: 2,
-      lineCap: 'butt'
-    }
-  ]
+      lineWidth: 5,
+      lineCap: 'butt',
+      pairsOdd: [],
+      pairDouble: [],
+    },
+    {
+      name: 'Curve 1',
+      curve: new Curve({
+        points: [
+          new Point({ x: 50, y: 80 }),
+          new Point({ x: 600, y: 400 }),
+          new Point({ x: 300, y: 800 }),
+        ],
+      }),
+      color: '#000000',
+      lineWidth: 5,
+      lineCap: 'butt',
+      pairsOdd: [],
+      pairDouble: [],
+    },
+  ],
+  currColor: '#000000',
+  currLineWidth: 5,
+  currLineCap: 'butt',
+  currSet: 0,
+  currNumOfPar: 0,
+  currDisOfPar: 0,
+};
+
+// Application settings
+export const settings = {
+  dimensions: [1080, 1080],
+  animate: PARAMS.editMode,
+  backgroundColor: '#ffffff'
 }; 

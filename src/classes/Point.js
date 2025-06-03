@@ -6,60 +6,33 @@
 // All methods and helpers are documented for maintainability.
 
 /**
- * Point Class
- * 
- * Represents a point in 2D space with properties for drawing and interaction.
- * Used for defining control points in Bezier curves.
- * 
- * @class
+ * Point class represents a control point on a curve.
+ * type: 0 = normal, 1 = mid, etc.
  */
 export class Point {
   /**
-   * Creates a new Point instance
-   * @param {Object} options - Configuration options
-   * @param {number} options.x - X coordinate
-   * @param {number} options.y - Y coordinate
-   * @param {boolean} [options.isMidPoint=false] - Whether this is a mid-point
-   * @param {boolean} [options.isSelected=false] - Whether this point is selected
-   * @param {boolean} [options.isDragging=false] - Whether this point is being dragged
+   * @param {{x:number, y:number, type?:number}} param0
    */
-  constructor({ x, y, isMidPoint = false, isSelected = false, isDragging = false }) {
+  constructor({ x, y, type = 0 }) {
     /** @type {number} */
     this.x = x;
     /** @type {number} */
     this.y = y;
+    /** @type {number} */
+    this.type = type; // 0: normal, 1: mid, etc.
     /** @type {boolean} */
-    this.isMidPoint = isMidPoint;
+    this.isDragging = false;
     /** @type {boolean} */
-    this.isSelected = isSelected;
-    /** @type {boolean} */
-    this.isDragging = isDragging;
+    this.isSelected = false;
   }
-
   /**
-   * Checks if a point (x,y) is within the hit area of this point
-   * @param {number} x - X coordinate to test
-   * @param {number} y - Y coordinate to test
-   * @returns {boolean} True if the point is within the hit area
+   * Hit test: returns true if (x, y) is within 10px of this point.
+   * @param {number} x
+   * @param {number} y
+   * @returns {boolean}
    */
   hitTest(x, y) {
-    const dx = this.x - x;
-    const dy = this.y - y;
-    return Math.sqrt(dx * dx + dy * dy) < 10;
-  }
-
-  /**
-   * Draws the point on the canvas
-   * @param {CanvasRenderingContext2D} context - The canvas context
-   */
-  draw(context) {
-    context.beginPath();
-    context.arc(this.x, this.y, 5, 0, Math.PI * 2);
-    context.fillStyle = this.isSelected ? '#ff0000' : '#000000';
-    context.fill();
-    context.strokeStyle = '#ffffff';
-    context.lineWidth = 2;
-    context.stroke();
+    return (Math.abs(this.x - x) < 10 && Math.abs(this.y - y) < 10);
   }
 }
 
