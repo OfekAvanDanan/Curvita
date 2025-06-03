@@ -291,6 +291,12 @@ export default function SketchCurvesWindow() {
     createPane();
     canvas.addEventListener('mousedown', onMouseDown);
     if (settings.animate) animate();
+    // HMR: Redraw canvas when classes change (for instant feedback)
+    if (module.hot) {
+      module.hot.accept(['./classes/Curve.js', './classes/Point.js'], () => {
+        draw();
+      });
+    }
     return () => {
       canvas.removeEventListener('mousedown', onMouseDown);
       cancelAnimationFrame(animationRef.current);

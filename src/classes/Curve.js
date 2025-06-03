@@ -1,13 +1,28 @@
-// Full Curve class and helpers restored from original app
+// Curve.js - Bezier curve and parallel logic for Sketch Curves React
+// Restored and documented for clarity (2024)
+// Author: [Your Name or Team]
+//
+// This file contains the Curve class, which manages Bezier curves, their parallels, and all related geometry.
+// All methods and helpers are documented for maintainability.
+
 const math = require('canvas-sketch-util/math');
 const { Point } = require('./Point.js');
 
+/**
+ * Linear interpolation between a and b by t
+ */
 function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
+/**
+ * De Casteljau's algorithm for Bezier curves of any degree.
+ * Returns the point at parameter t (0..1) for the given control points.
+ * @param {Array<{x:number, y:number}>} points
+ * @param {number} t
+ * @returns {{x:number, y:number}}
+ */
 function getCurve(points, t) {
-  // De Casteljau's algorithm for Bezier curves
   let pts = points.map((p) => ({ x: p.x, y: p.y }));
   while (pts.length > 1) {
     let next = [];
@@ -22,8 +37,15 @@ function getCurve(points, t) {
   return pts[0];
 }
 
+/**
+ * Returns a line parallel to p0-p1 at distance d.
+ * Used for constructing parallel curves.
+ * @param {{x:number, y:number}} p0
+ * @param {{x:number, y:number}} p1
+ * @param {number} d
+ * @returns {[{x:number, y:number}, {x:number, y:number}]}
+ */
 function ParallelCurveToLine(p0, p1, d) {
-  // Returns a line parallel to p0-p1 at distance d
   const dx = p1.x - p0.x;
   const dy = p1.y - p0.y;
   const len = Math.sqrt(dx * dx + dy * dy);
@@ -36,18 +58,37 @@ function ParallelCurveToLine(p0, p1, d) {
   ];
 }
 
+/**
+ * Curve class manages a set of control points, Bezier evaluation, parallels, and drawing.
+ */
 class Curve {
+  /**
+   * @param {{points: Point[]}} param0
+   */
   constructor({ points }) {
+    /** @type {Point[]} */
     this.points = points || [];
-    this._parNum = 0;
-    this._parDis = 0;
-    this._parallels = [];
-    this._midPoints = [];
+    /** @type {number} */
+    this._parNum = 0; // Number of parallels
+    /** @type {number} */
+    this._parDis = 0; // Distance between parallels
+    /** @type {Array<Array<{x:number, y:number}>>} */
+    this._parallels = []; // Stores parallel curves
+    /** @type {Array<{x:number, y:number}>} */
+    this._midPoints = []; // Stores midpoints for guides
   }
+  /** Get number of parallels */
   getParNum() { return this._parNum; }
+  /** Set number of parallels */
   setParNum(n) { this._parNum = n; }
+  /** Get distance between parallels */
   getParDis() { return this._parDis; }
+  /** Set distance between parallels */
   setParDis(d) { this._parDis = d; }
+  /**
+   * Recompute midpoints between each pair of control points.
+   * Used for drawing guides.
+   */
   updateMidPoints() {
     this._midPoints = [];
     for (let i = 0; i < this.points.length - 1; i++) {
@@ -59,6 +100,10 @@ class Curve {
       });
     }
   }
+  /**
+   * Recompute all parallel curves based on current control points, number, and distance.
+   * Call this after changing points, number, or distance.
+   */
   updateParallels(force) {
     if (this._parNum < 2) return;
     this._parallels = [];
@@ -73,6 +118,14 @@ class Curve {
       this._parallels.push(parallel);
     }
   }
+  /**
+   * Draw the main Bezier curve using De Casteljau's algorithm.
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {boolean} show
+   * @param {string} color
+   * @param {number} lineWidth
+   * @param {CanvasLineCap} lineCap
+   */
   drawCurve(ctx, show, color = '#000', lineWidth = 2, lineCap = 'butt') {
     if (!ctx || this.points.length < 2) return;
     ctx.save();
@@ -88,6 +141,14 @@ class Curve {
     ctx.stroke();
     ctx.restore();
   }
+  /**
+   * Draw all parallel curves (if any).
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {boolean} show
+   * @param {string} color
+   * @param {number} lineWidth
+   * @param {CanvasLineCap} lineCap
+   */
   drawParallels(ctx, show, color = '#888', lineWidth = 1, lineCap = 'butt') {
     if (!ctx || this._parallels.length === 0) return;
     ctx.save();
@@ -105,12 +166,20 @@ class Curve {
     }
     ctx.restore();
   }
+  /**
+   * Draw dashed guide lines between control points.
+   * @param {CanvasRenderingContext2D} ctx
+   */
   drawGuides(ctx) {
     if (!ctx || this.points.length < 2) return;
     ctx.save();
     ctx.strokeStyle = '#aaa';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 5;
+    ctx.setLineDash([20, 5]);
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.73)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 4;
     ctx.beginPath();
     ctx.moveTo(this.points[0].x, this.points[0].y);
     for (let i = 1; i < this.points.length; i++) {
@@ -120,6 +189,10 @@ class Curve {
     ctx.setLineDash([]);
     ctx.restore();
   }
+  /**
+   * Draw all control points (red for normal, blue for mid).
+   * @param {CanvasRenderingContext2D} ctx
+   */
   drawAllPoints(ctx) {
     if (!ctx) return;
     ctx.save();
