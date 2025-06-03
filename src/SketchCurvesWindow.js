@@ -1,60 +1,15 @@
 import React, { useRef, useEffect } from 'react';
-import { Pane } from 'tweakpane';
-import { plugins as EssentialsPlugins } from '@tweakpane/plugin-essentials';
 import { Point } from './classes/Point.js';
 import { Curve, getCurve } from './classes/Curve.js';
-import { SELECTED_LINE_CURVE } from "./curveStyle.js"
-
-const PARAMS = {
-  editMode: true,
-  sets: [
-    {
-      curve: new Curve({
-        points: [
-          new Point({ x: 0, y: 0 }),
-          new Point({ x: 540, y: 540 }),
-          new Point({ x: 900, y: 540 }),
-        ],
-      }),
-      color: '#000000',
-      lineWidth: 5,
-      lineCap: 'butt',
-      pairsOdd: [],
-      pairDouble: [],
-    },
-    {
-      curve: new Curve({
-        points: [
-          new Point({ x: 50, y: 80 }),
-          new Point({ x: 600, y: 400 }),
-          new Point({ x: 300, y: 800 }),
-        ],
-      }),
-      color: '#000000',
-      lineWidth: 5,
-      lineCap: 'butt',
-      pairsOdd: [],
-      pairDouble: [],
-    },
-  ],
-  currColor: '#000000',
-  currLineWidth: 5,
-  currLineCap: 'butt',
-  currSet: 0,
-  currNumOfPar: 0,
-  currDisOfPar: 0,
-};
-
-const settings = {
-  dimensions: [1080, 1080],
-  animate: PARAMS.editMode,
-};
+import { SELECTED_LINE_CURVE } from "./curveStyle.js";
+import { PARAMS, settings } from './params.js';
+import { TweakpaneUI } from './TweakpaneUI.js';
 
 export default function SketchCurvesWindow() {
   const canvasRef = useRef(null);
   const paneRef = useRef(null);
   const animationRef = useRef();
-  const paneInstance = useRef();
+  const tweakpaneUI = useRef();
 
   // Helper to get canvas context
   const getContext = () => {
@@ -110,7 +65,6 @@ export default function SketchCurvesWindow() {
         SELECTED_LINE_CURVE.lineCap
       );
 
-
       context.shadowColor = 'transparent';
       context.shadowBlur = 0;
       // Draw the actual curve on top
@@ -140,11 +94,10 @@ export default function SketchCurvesWindow() {
     const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
 
     // First check if we clicked on any curve
-    // First check if we clicked on any curve
     let clickedCurveIndex = -1;
     for (let i = 0; i < PARAMS.sets.length; i++) {
       const curve = PARAMS.sets[i].curve;
-      // אם אין כלל נקודות או פחות משתי נקודות, מדלגים על הבדיקה
+      // If fewer than 2 points, skip distance check
       if (curve.points.length < 2) continue;
 
       // Check if click is near the curve
@@ -161,19 +114,17 @@ export default function SketchCurvesWindow() {
       if (clickedCurveIndex !== -1) break;
     }
 
-
     // If we clicked on a curve, select it
     if (clickedCurveIndex !== -1 && clickedCurveIndex !== PARAMS.currSet) {
       PARAMS.currSet = clickedCurveIndex;
-      // Update tweakpane with new curve properties
       const set = PARAMS.sets[PARAMS.currSet];
       PARAMS.currColor = set.color;
       PARAMS.currLineWidth = set.lineWidth;
       PARAMS.currLineCap = set.lineCap;
       PARAMS.currNumOfPar = set.curve.getParNum();
       PARAMS.currDisOfPar = set.curve.getParDis();
-      if (paneInstance.current) {
-        paneInstance.current.refresh();
+      if (tweakpaneUI.current) {
+        tweakpaneUI.current.createPane();
       }
       draw();
       return;
@@ -199,15 +150,13 @@ export default function SketchCurvesWindow() {
     }
 
     if (clickedPoint) {
-      if (e.button === 2) { // Right click
-        // Delete the point
+      if (e.button === 2) { // Right click: delete the point
         curve.points.splice(clickedPointIndex, 1);
         curve.updateMidPoints();
         if (PARAMS.currNumOfPar >= 2) {
           curve.updateParallels(true);
         }
-      } else { // Left click
-        // If we clicked on a point, deselect all points and select this one
+      } else { // Left click: select and drag
         curve.points.forEach(p => {
           p.isSelected = false;
           p.isDragging = false;
@@ -270,138 +219,6 @@ export default function SketchCurvesWindow() {
     window.removeEventListener('mouseup', onMouseUp);
   };
 
-  // Pane setup
-  const createPane = () => {
-    if (paneInstance.current) {
-      try {
-        paneInstance.current.dispose();
-      } catch (e) {
-        // Ignore if already disposed
-      }
-      paneInstance.current = null;
-    }
-    const pane = new Pane({ container: paneRef.current });
-    pane.registerPlugin(EssentialsPlugins);
-    const f1 = pane.addFolder({ title: 'Editor', expanded: true });
-    const f2 = f1.addFolder({ title: `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`, expanded: true });
-    f1.addBinding(PARAMS, 'editMode', { label: 'Edit Mode' }).on('change', () => {
-      settings.animate = PARAMS.editMode;
-      f2.hidden = !PARAMS.editMode;
-      if (settings.animate) {
-        animate();
-      } else {
-        cancelAnimationFrame(animationRef.current);
-        draw();
-      }
-    });
-    const curveOptions = {};
-    PARAMS.sets.forEach((_, idx) => {
-      curveOptions[`Curve ${idx}`] = idx;
-    });
-
-    f1.addBinding(PARAMS, 'currSet', {
-      label: 'Current Curve',
-      options: curveOptions,
-    }).on('change', () => {
-      f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
-      updateInputs();
-      draw();
-    });
-    f2.addBinding(PARAMS, 'currColor', { view: 'color', label: 'Stroke Color' }).on('change', () => {
-      const set = PARAMS.sets[PARAMS.currSet];
-      set.color = PARAMS.currColor;
-      draw();
-    });
-    f2.addBinding(PARAMS, 'currLineWidth', {
-      label: 'Line Width',
-      min: 0.1,
-      max: 200,
-    }).on('change', () => {
-      const set = PARAMS.sets[PARAMS.currSet];
-      set.lineWidth = PARAMS.currLineWidth;
-      draw();
-    });
-    f2.addBinding(PARAMS, 'currLineCap', {
-      label: 'Line Cap',
-      options: { butt: 'butt', round: 'round', square: 'square' },
-    }).on('change', () => {
-      const set = PARAMS.sets[PARAMS.currSet];
-      set.lineCap = PARAMS.currLineCap;
-      draw();
-    });
-    f2.addBinding(PARAMS, 'currNumOfPar', {
-      label: 'Num of Parallels',
-      min: 0,
-      max: 200,
-      step: 1,
-    }).on('change', () => {
-      const set = PARAMS.sets[PARAMS.currSet];
-      set.curve.setParNum(PARAMS.currNumOfPar);
-      if (PARAMS.currNumOfPar >= 2) {
-        set.curve.updateParallels(true);
-      }
-      draw();
-    });
-    f2.addBinding(PARAMS, 'currDisOfPar', {
-      label: 'Distance',
-      min: 2,
-      max: 100,
-    }).on('change', () => {
-      const set = PARAMS.sets[PARAMS.currSet];
-      set.curve.setParDis(PARAMS.currDisOfPar);
-      if (set.curve.getParNum() >= 2) {
-        set.curve.updateParallels(true);
-      }
-      draw();
-    });
-    f2.addButton({ title: 'Delete this curve' }).on('click', () => {
-      PARAMS.sets.splice(PARAMS.currSet, 1);
-      PARAMS.currSet = Math.max(0, PARAMS.currSet - 1);
-      if (PARAMS.sets.length === 0) {
-        startNewCurve();
-      }
-      pane.refresh();
-      f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
-      updateInputs();
-      createPane();
-      draw();
-    });
-    f1.addButton({ title: 'Add a new curve' }).on('click', () => {
-      startNewCurve();
-      PARAMS.currSet = PARAMS.sets.length - 1;
-      pane.refresh();
-      f2.title = `Edit Mode: ${PARAMS.currSet}/${PARAMS.sets.length - 1}`;
-      updateInputs();
-      createPane();
-      draw();
-    });
-    f2.hidden = !PARAMS.editMode;
-    function updateInputs() {
-      const set = PARAMS.sets[PARAMS.currSet];
-      PARAMS.currColor = set.color;
-      PARAMS.currLineWidth = set.lineWidth;
-      PARAMS.currLineCap = set.lineCap;
-      PARAMS.currNumOfPar = set.curve.getParNum();
-      PARAMS.currDisOfPar = set.curve.getParDis();
-      pane.refresh();
-
-    }
-    paneInstance.current = pane;
-  };
-
-  // Add a new empty curve
-  const startNewCurve = () => {
-    PARAMS.sets = PARAMS.sets.filter((set) => set.curve.points.length > 0);
-    PARAMS.sets.push({
-      curve: new Curve({ points: [] }),
-      color: '#000000',
-      lineWidth: 5,
-      lineCap: 'butt',
-      pairsOdd: [],
-      pairDouble: [],
-    });
-  };
-
   // Add context menu prevention
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -419,28 +236,28 @@ export default function SketchCurvesWindow() {
     canvas.width = settings.dimensions[0];
     canvas.height = settings.dimensions[1];
     draw();
-    createPane();
+    
+    // Initialize Tweakpane UI
+    tweakpaneUI.current = new TweakpaneUI(paneRef, draw);
+    tweakpaneUI.current.createPane();
+    
     canvas.addEventListener('mousedown', onMouseDown);
     if (settings.animate) animate();
+    
     // HMR: Redraw canvas when classes change (for instant feedback)
     if (module.hot) {
       module.hot.accept(['./classes/Curve.js', './classes/Point.js'], () => {
         draw();
       });
     }
+    
     return () => {
       canvas.removeEventListener('mousedown', onMouseDown);
       cancelAnimationFrame(animationRef.current);
-      if (paneInstance.current) {
-        try {
-          paneInstance.current.dispose();
-        } catch (e) {
-          // Ignore if already disposed
-        }
-        paneInstance.current = null;
+      if (tweakpaneUI.current) {
+        tweakpaneUI.current.dispose();
       }
     };
-    // eslint-disable-next-line
   }, []);
 
   return (
@@ -454,4 +271,4 @@ export default function SketchCurvesWindow() {
       <div ref={paneRef} style={{ minWidth: 320 }} />
     </div>
   );
-} 
+}
