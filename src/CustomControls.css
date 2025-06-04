@@ -1,51 +1,41 @@
-/* === בסיס: גופן ושקיפות זכוכית === */
-.control-pane {
+.menu-layout{
   display: flex;
   flex-direction: row;
-  width: 100%;
   gap: 20px;
-  font-family: "SF Pro Text", "Montserrat", sans-serif;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
-  align-items: center;
 }
-
 
 .lable{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   text-align: center;
   font-size: 0.85rem;
-  margin-top: 1.5rem;
   color: #ffffff9d;
+  text-align: left ;
 }
 
-
-/* --- Toggle Switch ל-Edit Mode --- */
 .toggle-label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.95rem;
+  justify-content: center;
+  height: 36px;
+  gap: 8px;
   position: relative;
 }
 
 .toggle-input {
-  display: none;
   opacity: 0;
   width: 0;
   height: 0;
+  display: none;
 }
 
 .toggle-slider {
   position: relative;
-  height: 20px;
+  width: 36px;
+  height: 18px;
   background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  border-radius: 9px;
   transition: background-color 0.2s ease;
   cursor: pointer;
 }
@@ -53,8 +43,8 @@
 .toggle-slider::before {
   content: "";
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   left: 2px;
   top: 2px;
   background-color: #fff;
@@ -62,46 +52,65 @@
   transition: transform 0.2s ease;
 }
 
-/* Checked state */
 .toggle-input:checked + .toggle-slider {
-  background-color: #34c759; /* ירוק בהיר בסגנון אפל */
+  background-color: #34c759;
 }
 
 .toggle-input:checked + .toggle-slider::before {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
-/* --- תוויות ושדות קלט בסיסיים --- */
-.control-pane label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.9rem;
-}
-
-.control-pane input[type="text"],
-.control-pane input[type="number"],
-.control-pane select {
-  margin-top: 6px;
-  padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-radius: 8px;
-  outline: none;
+.name-edit-container input,
+input[type="text"],
+input[type="number"],
+select,
+.subttle-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  height: 36px; /* גובה זהה ל-dropdown ולצבע */
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.control-pane select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 1L5 5L1 1' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+.name-edit-container input{
+  width: 132pt;
 }
 
-/* צבע קלט צבעוני */
+input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+input:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+select:hover,
+.subttle-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+
+.subttle-button:active {
+  transform: scale(0.97);
+}
+
+
 .color-input {
-  margin-top: 6px;
   width: 100%;
   max-width: 100%;
   padding: 0;
@@ -135,316 +144,71 @@
 
 /* --- קבוצה של סלאיידר + מספר --- */
 .slider-input-group {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
-.slider-input-group input[type="number"] {
-  width: 60px;
-}
-
-/* סלאיידר עגול ואפליסטי */
-.slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.slider:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-/* --- אזור עריכה מורחב --- */
-.control-pane .edit-section {
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.control-pane h4 {
-  margin: 0 0 8px 0;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* --- כפתורים --- */
-.button {
-  font-family: "SF Pro Text", "Montserrat", sans-serif;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.02);
-}
-
-.button:active {
-  transform: scale(0.97);
-}
-
-#red {
-  background-color: #ff3b30; /* אדום אפליסטי */
-}
-
-#red:hover {
-  background-color: #ff5548;
-}
-
-#green {
-  background-color: #34c759; /* ירוק אפליסטי */
-}
-
-#green:hover {
-  background-color: #5dd17c;
-}
-
-
-/* 1. מחביאים את החץ המובנה (המראה הדיפולטי) */
-.control-pane select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-radius: 8px;
-  padding: 8px 32px 8px 12px; /* משאירים מקום לחץ מותאם אישית */
-  font-size: 0.95rem;
-  outline: none;
-  cursor: pointer;
-}
-
-/* 2. הוספת חץ מותאם עם SVG קטן */
-.control-pane select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 1L5 5L1 1' stroke='%23FFFFFF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px 6px;
-}
-
-/* 3. כפתור חץ במצב פתיחה (פוקוס או הארעה) */
-.control-pane select:focus, 
-.control-pane select:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* 4. עיצוב השורות ברשימת ה־<option> כשמופיע התפריט */
-.control-pane option {
-  background-color: #18191b;
-  color: #ffffff;
-  padding: 4px 8px;
-}
-
-/* 5. מצב ה־hover על כל option (בחלק מהדפדפנים אפשרי) */
-.control-pane option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* 6. מצב option שנבחר */
-.control-pane option:checked {
-  background-color: rgba(199, 52, 52, 0.3); /* ירוק ״אפליסטי״ למצב בחירה */
-  color: #ffffff;
-}
-
-/* 7. אם רוצים לעצב את הסרגל גלילה בתוך ה־dropdown (כרום/ספארי) */
-.control-pane select::-webkit-scrollbar {
-  width: 8px;
-}
-
-.control-pane select::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.control-pane select::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-/* אם הדפדפן לא תומך, לפחות יוותר כהה ונקי */
-.control-pane select::-ms-expand {
-  display: none;
-}
-
-/* Custom Dropdown Styles */
-.custom-dropdown {
-  position: relative;
-  width: 100%;
-}
-
-.dropdown-header {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-radius: 8px;
-  padding: 8px 32px 8px 12px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dropdown-header:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dropdown-arrow {
-  font-size: 0.8em;
-  transition: transform 0.2s ease;
-}
-
-.dropdown-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #18191b;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  margin-top: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-.dropdown-option {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #ffffff;
-  transition: background-color 0.2s ease;
-}
-
-.dropdown-option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-option.selected {
-  background-color: rgba(199, 52, 52, 0.3);
-}
-
-.dropdown-option input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  color: #ffffff;
-  padding: 4px 8px;
-  font-size: 0.95rem;
-}
-
-.dropdown-option input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Scrollbar styles for dropdown */
-.dropdown-options::-webkit-scrollbar {
-  width: 8px;
-}
-
-.dropdown-options::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.dropdown-options::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-/* Name edit styles */
-.name-edit-container {
-  margin-top: 6px;
-  width: 100%;
-}
-
-.name-edit-container input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  color: #ffffff;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  height: 36px;
-  transition: all 0.2s ease;
-}
-
-.name-edit-container input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.name-edit-container input:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.subttle-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  height: 36px; /* גובה זהה ל-dropdown ולצבע */
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.95rem;
-  cursor: pointer;
-  padding: 0 12px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
+.slider-toggle-button {
+  padding: 0 8px; /* הקטנת הריפוד של הכפתור */
+  height: 36px; /* גובה זהה לשדה המספר */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.subttle-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.9);
+.slider-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 4px;
 }
 
-.subttle-button:active {
-  transform: scale(0.97);
+.slider-dropdown .slider {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
 }
+
+.slider-dropdown .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.slider-dropdown .slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.slider-input-group input[type="number"] {
+  width: 60px; /* שמירה על רוחב קבוע לשדה המספר */
+}
+
+ h4 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+

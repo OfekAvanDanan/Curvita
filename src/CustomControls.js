@@ -34,6 +34,9 @@ function CustomControls({ onDraw }, ref) {
   const [distPar, setDistPar] = useState(PARAMS.currDisOfPar);
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
+  const [isLineWidthSliderOpen, setIsLineWidthSliderOpen] = useState(false);
+  const [isNumParSliderOpen, setIsNumParSliderOpen] = useState(false);
+  const [isDistParSliderOpen, setIsDistParSliderOpen] = useState(false);
 
   const refreshState = () => {
     const idx = PARAMS.currSet;
@@ -229,49 +232,83 @@ function CustomControls({ onDraw }, ref) {
   const downloadCanvas = () => {
     // Store current edit mode state
     const wasEditMode = PARAMS.editMode;
-    
+
     // Temporarily disable edit mode
     PARAMS.editMode = false;
-    
+
     // Redraw without guides
     if (onDraw) onDraw();
-    
+
     // Get the canvas data URL
     const canvas = document.querySelector('canvas');
     const dataURL = canvas.toDataURL('image/png');
-    
+
     // Create download link
     const link = document.createElement('a');
     link.download = 'curvita-design.png';
     link.href = dataURL;
     link.click();
-    
+
     // Restore edit mode state
     PARAMS.editMode = wasEditMode;
     if (onDraw) onDraw();
   };
 
-  return (
-    <div className="control-pane">
-      <label className="lable">
-        Editor
-       
-        <span className="toggle-slider" />
-        <input
-          type="checkbox"
-          checked={editMode}
-          onChange={(e) => updateEditMode(e.target.checked)}
-          className="toggle-input"
-        />
-      </label>
+  const toggleSliderDropdown = (sliderType) => {
+    if (sliderType === 'lineWidth') {
+      setIsLineWidthSliderOpen(prevState => !prevState);
+      setIsNumParSliderOpen(false);
+      setIsDistParSliderOpen(false);
+    } else if (sliderType === 'numPar') {
+      setIsNumParSliderOpen(prevState => !prevState);
+      setIsLineWidthSliderOpen(false);
+      setIsDistParSliderOpen(false);
+    } else if (sliderType === 'distPar') {
+      setIsDistParSliderOpen(prevState => !prevState);
+      setIsLineWidthSliderOpen(false);
+      setIsNumParSliderOpen(false);
+    }
+  };
 
-<label className="lable">
-  <br/>
-<button onClick={downloadCanvas} className="subttle-button" >
-        Download Design
-      </button>
-</label>
-      <label className='lable'>
+  // Close slider dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const controlPane = document.querySelector('.control-pane'); // Or the new wrapper class
+      if (controlPane && !controlPane.contains(event.target)) {
+        setIsLineWidthSliderOpen(false);
+        setIsNumParSliderOpen(false);
+        setIsDistParSliderOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div>
+      <div className='glassy-panel'>
+        <div className='menu-layout'>
+          <label className="lable">
+            Editor
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={editMode}
+                onChange={(e) => updateEditMode(e.target.checked)}
+                className="toggle-input"
+              />
+              <span className="toggle-slider" />
+            </label></label>
+          <label className="lable">
+            Download
+            <button onClick={downloadCanvas} className="subttle-button" >
+            ↓
+            </button>
+          </label>
+          <div className='menu-layout'>
+          <label className='lable'>
         Background
         <input
           type="color"
@@ -280,57 +317,42 @@ function CustomControls({ onDraw }, ref) {
           className="color-input"
         />
       </label>
-
       <label className='lable'>
         Current Curve
         <div className='liniar-layout'>
-        {editingName === currSet ? (
-          <div className="name-edit-container">
-            <input
-              type="text"
-              value={tempName}
-              onChange={handleNameChange}
-              onBlur={handleNameBlur}
-              onKeyDown={handleNameKeyDown}
-              autoFocus
-            />
-          </div>
-        ) : (
-          <>
-            <select value={currSet} onChange={(e) => updateCurrSet(e.target.value)}>
-              {PARAMS.sets.map((set, idx) => (
-                <option key={idx} value={idx}>
-                  {`${set.name} (${idx})`}
-                </option>
-              ))}
-            </select>
-            <button
-              className="subttle-button"
-              onClick={(e) => handleEditClick(e, currSet)}
-              title="Edit curve name"
-            >
-              ✎
-            </button>
-          </>
-        )}
+          {editingName === currSet ? (
+            <div className="name-edit-container">
+              <input
+                type="text"
+                value={tempName}
+                onChange={handleNameChange}
+                onBlur={handleNameBlur}
+                onKeyDown={handleNameKeyDown}
+                autoFocus
+              />
+            </div>
+          ) : (
+            <div className='slider-input-group'>
+              <select value={currSet} onChange={(e) => updateCurrSet(e.target.value)}>
+                {PARAMS.sets.map((set, idx) => (
+                  <option key={idx} value={idx}>
+                    {`${set.name} (${idx})`}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="subttle-button slider-toggle-button"
+                onClick={(e) => handleEditClick(e, currSet)}
+                title="Edit curve name"
+              >
+                ✎
+              </button>
+            </div>
+          )}
         </div>
       </label>
-
-     {/*  {editMode && (
-        <div className="edit-section">
-          <h4>{`Edit Mode: ${curveName} (${currSet}/${PARAMS.sets.length - 1})`}</h4>
-
-          <label>
-            Name
-            <input
-              type="text"
-              value={curveName}
-              onChange={(e) => updateCurveName(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Stroke Color
+      <label className='lable'>
+      Stroke Color
             <input
               type="color"
               value={strokeColor}
@@ -338,19 +360,9 @@ function CustomControls({ onDraw }, ref) {
               className="color-input"
             />
           </label>
-
-          <label>
+          <label className='lable'>
             Line Width
             <div className="slider-input-group">
-              <input
-                type="range"
-                id="slider-lineWidth"
-                min="0"
-                max="100"
-                defaultValue={Math.sqrt((lineWidth - 0.1) / (200 - 0.1)) * 100}
-                onInput={(e) => updateLineWidth(e.target.value)}
-                className="slider"
-              />
               <input
                 type="number"
                 min="0.1"
@@ -359,10 +371,25 @@ function CustomControls({ onDraw }, ref) {
                 value={lineWidth}
                 onChange={(e) => updateLineWidthInput(e.target.value)}
               />
+              <button className="subttle-button" onClick={() => toggleSliderDropdown('lineWidth')}>
+              ↔
+              </button>
+              {isLineWidthSliderOpen && (
+                <div className="slider-dropdown">
+                  <input
+                    type="range"
+                    id="slider-lineWidth"
+                    min="0"
+                    max="100"
+                    defaultValue={Math.sqrt((lineWidth - 0.1) / (200 - 0.1)) * 100}
+                    onInput={(e) => updateLineWidth(e.target.value)}
+                    className="slider"
+                  />
+                </div>
+              )}
             </div>
           </label>
-
-          <label>
+          <label className='lable'>
             Line Cap
             <select value={lineCap} onChange={(e) => updateLineCap(e.target.value)}>
               <option value="butt">butt</option>
@@ -371,18 +398,9 @@ function CustomControls({ onDraw }, ref) {
             </select>
           </label>
 
-          <label>
+          <label className='lable'>
             Number of Parallels
             <div className="slider-input-group">
-              <input
-                type="range"
-                id="slider-numPar"
-                min="0"
-                max="100"
-                defaultValue={Math.sqrt(numPar / 200) * 100}
-                onInput={(e) => updateNumPar(e.target.value)}
-                className="slider"
-              />
               <input
                 type="number"
                 min="0"
@@ -391,22 +409,28 @@ function CustomControls({ onDraw }, ref) {
                 value={numPar}
                 onChange={(e) => updateNumParInput(e.target.value)}
               />
+              <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('numPar')}>
+              ↔
+              </button>
+               {isNumParSliderOpen && (
+                <div className="slider-dropdown">
+                  <input
+                    type="range"
+                    id="slider-numPar"
+                    min="0"
+                    max="100"
+                    defaultValue={Math.sqrt(numPar / 200) * 100}
+                    onInput={(e) => updateNumPar(e.target.value)}
+                    className="slider"
+                  />
+                </div>
+              )}
             </div>
           </label>
-
-          <label>
+          <label className='lable'>
             Distance
             <div className="slider-input-group">
-              <input
-                type="range"
-                id="slider-distPar"
-                min="0"
-                max="100"
-                defaultValue={Math.sqrt((distPar - 2) / (100 - 2)) * 100}
-                onInput={(e) => updateDistPar(e.target.value)}
-                className="slider"
-              />
-              <input
+               <input
                 type="number"
                 min="2"
                 max="100"
@@ -414,8 +438,45 @@ function CustomControls({ onDraw }, ref) {
                 value={distPar}
                 onChange={(e) => updateDistParInput(e.target.value)}
               />
+               <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('distPar')}>
+               ↔
+               </button>
+               {isDistParSliderOpen && (
+                <div className="slider-dropdown">
+                  <input
+                    type="range"
+                    id="slider-distPar"
+                    min="0"
+                    max="100"
+                    defaultValue={Math.sqrt((distPar - 2) / (100 - 2)) * 100}
+                    onInput={(e) => updateDistPar(e.target.value)}
+                    className="slider"
+                  />
+                </div>
+              )}
             </div>
           </label>
+        </div>
+      </div>
+      </div>
+
+
+      
+
+
+
+      {/*  {editMode && (
+        <div className="edit-section">
+          <h4>{`Edit Mode: ${curveName} (${currSet}/${PARAMS.sets.length - 1})`}</h4>
+
+         
+          
+
+          
+
+         
+
+         
 
           <button onClick={deleteCurve} className="button" id="red">
             Delete this curve
@@ -426,9 +487,9 @@ function CustomControls({ onDraw }, ref) {
         </div>
       )} */}
 
-    
 
-     
+
+
     </div>
   );
 }
