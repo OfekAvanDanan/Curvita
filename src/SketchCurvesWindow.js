@@ -77,7 +77,7 @@ export default function SketchCurvesWindow() {
       // Draw the actual curve on top
       curve.drawCurve(context, true, set.color, set.lineWidth, set.lineCap);
       curve.drawGuides(context);
-      curve.drawAllPoints(context);
+      curve.drawAllPoints(context,set.lineWidth);
       context.restore();
     }
   }, []);
@@ -191,7 +191,8 @@ export default function SketchCurvesWindow() {
     // First check if we clicked on any curve
     let clickedCurveIndex = -1;
     for (let i = 0; i < PARAMS.sets.length; i++) {
-      const curve = PARAMS.sets[i].curve;
+      const set = PARAMS.sets[i];
+      const curve = set.curve;
       // If fewer than 2 points, skip distance check
       if (curve.points.length < 2) continue;
 
@@ -232,7 +233,7 @@ export default function SketchCurvesWindow() {
     let clickedPointIndex = -1;
     for (let i = 0; i < curve.points.length; i++) {
       const point = curve.points[i];
-      if (point.hitTest(x, y)) {
+      if (point.hitTest(x, y, PARAMS.sets[PARAMS.currSet].lineWidth)) {
         clickedPoint = point;
         clickedPointIndex = i;
         break;

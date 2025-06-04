@@ -26,13 +26,18 @@ export class Point {
     this.isSelected = false;
   }
   /**
-   * Hit test: returns true if (x, y) is within 10px of this point.
+   * Hit test: returns true if (x, y) is within the hit area of this point.
+   * The hit area is proportional to the line width for better touch interaction.
    * @param {number} x
    * @param {number} y
+   * @param {number} lineWidth - The current line width of the curve
    * @returns {boolean}
    */
-  hitTest(x, y) {
-    return (Math.abs(this.x - x) < 10 && Math.abs(this.y - y) < 10);
+  hitTest(x, y, lineWidth = 5) {
+    const hitRadius = Math.max(20, lineWidth * 2); // Minimum 20px radius, or 2x line width
+    const dx = this.x - x;
+    const dy = this.y - y;
+    return (dx * dx + dy * dy) <= hitRadius * hitRadius;
   }
 }
 

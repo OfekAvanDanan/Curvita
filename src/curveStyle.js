@@ -5,7 +5,7 @@ const fillStyle = 'rgba(255, 255, 255, 0.5)';
 const radius = 16;
 
 const shadowColor = 'rgba(0,0,0,0.25)';
-const shadowBlur = 5;
+const shadowBlur = 10;
 
 const strokes = 'rgba(0, 0, 0, 0.5)';
 const lineWidth = 0.5;
