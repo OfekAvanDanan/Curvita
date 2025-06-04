@@ -121,7 +121,10 @@ function CustomControls({ onDraw }, ref) {
     // invert mapping: sliderPos = sqrt((n - 0.1)/(200 - 0.1)) * 100
     const ratio = (n - 0.1) / (200 - 0.1);
     const sliderPos = Math.sqrt(Math.max(0, ratio)) * 100;
-    document.getElementById('slider-lineWidth').value = sliderPos;
+    const sliderElement = document.getElementById('slider-lineWidth');
+    if (sliderElement) {
+      sliderElement.value = sliderPos;
+    }
     PARAMS.currLineWidth = n;
     PARAMS.sets[PARAMS.currSet].lineWidth = n;
     if (onDraw) onDraw();
@@ -151,7 +154,10 @@ function CustomControls({ onDraw }, ref) {
     setNumPar(n);
     const ratio = n / 200;
     const sliderPos = Math.sqrt(Math.max(0, ratio)) * 100;
-    document.getElementById('slider-numPar').value = sliderPos;
+    const sliderElement = document.getElementById('slider-numPar');
+    if (sliderElement) {
+      sliderElement.value = sliderPos;
+    }
     PARAMS.currNumOfPar = n;
     const curve = PARAMS.sets[PARAMS.currSet].curve;
     curve.setParNum(n);
@@ -176,7 +182,10 @@ function CustomControls({ onDraw }, ref) {
     setDistPar(n);
     const ratio = (n - 2) / (100 - 2);
     const sliderPos = Math.sqrt(Math.max(0, ratio)) * 100;
-    document.getElementById('slider-distPar').value = sliderPos;
+    const sliderElement = document.getElementById('slider-distPar');
+    if (sliderElement) {
+      sliderElement.value = sliderPos;
+    }
     PARAMS.currDisOfPar = n;
     const curve = PARAMS.sets[PARAMS.currSet].curve;
     curve.setParDis(n);
@@ -455,7 +464,7 @@ function CustomControls({ onDraw }, ref) {
                   onChange={(e) => updateLineWidthInput(e.target.value)}
                   disabled={!editMode}
                 />
-                <button className="subttle-button" onClick={() => toggleSliderDropdown('lineWidth')} disabled={!editMode}>
+                <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('lineWidth')} disabled={!editMode}>
                   ↔
                 </button>
                 {isLineWidthSliderOpen && (
@@ -544,8 +553,6 @@ function CustomControls({ onDraw }, ref) {
                 )}
               </div>
             </label>
-
-            {editMode && (
               <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
                  <br/>
                  <div className='slider-input-group'>
@@ -556,7 +563,7 @@ function CustomControls({ onDraw }, ref) {
                     🗑️
                  </button></div>
                  </label>
-            )}
+            
           </div>
         </div>
       </div>

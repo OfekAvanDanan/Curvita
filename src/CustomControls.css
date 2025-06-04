@@ -154,6 +154,41 @@ select,
 
 select{
   width: 100pt;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  height: 36px; 
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+select:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Attempt to style the dropdown options */
+select option {
+  background: #1c1c1e; /* Dark background for options */
+  color: rgba(255, 255, 255, 0.9); /* Light text color */
+  padding: 8px 12px; /* Add some padding */
+}
+
+select option:hover {
+    background: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+    color: #fff;
 }
 
 input:focus {
