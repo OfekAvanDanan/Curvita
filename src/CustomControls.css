@@ -1,0 +1,38 @@
+.control-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: "Montserrat", sans-serif;
+  color: #ffffff;
+}
+
+.control-pane label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.control-pane input,
+.control-pane select {
+  margin-top: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.control-pane .edit-section {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-pane h3,
+.control-pane h4 {
+  margin: 0 0 4px 0;
+}

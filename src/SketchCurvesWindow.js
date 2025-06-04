@@ -3,13 +3,12 @@ import { Point } from './classes/Point.js';
 import { getCurve } from './classes/Curve.js';
 import { SELECTED_LINE_CURVE } from "./curveStyle.js";
 import { PARAMS, settings } from './params.js';
-import { TweakpaneUI } from './TweakpaneUI.js';
+import CustomControls from './CustomControls.js';
 
 export default function SketchCurvesWindow() {
   const canvasRef = useRef(null);
-  const paneRef = useRef(null);
+  const controlsRef = useRef();
   const animationRef = useRef();
-  const tweakpaneUI = useRef();
   const prevPointIndexRef = useRef(-1);
   const mouseMoveHandlerRef = useRef(null);
   const mouseUpHandlerRef = useRef(null);
@@ -219,8 +218,8 @@ export default function SketchCurvesWindow() {
       PARAMS.currLineCap = set.lineCap;
       PARAMS.currNumOfPar = set.curve.getParNum();
       PARAMS.currDisOfPar = set.curve.getParDis();
-      if (tweakpaneUI.current) {
-        tweakpaneUI.current.createPane();
+      if (controlsRef.current) {
+        controlsRef.current.refresh();
       }
       draw();
       return;
@@ -315,9 +314,9 @@ export default function SketchCurvesWindow() {
     canvas.height = settings.dimensions[1];
     draw();
     
-    // Initialize Tweakpane UI
-    tweakpaneUI.current = new TweakpaneUI(paneRef, draw);
-    tweakpaneUI.current.createPane();
+    if (controlsRef.current) {
+      controlsRef.current.refresh();
+    }
     
     canvas.addEventListener('mousedown', onMouseDown);
     canvas.addEventListener('touchstart', onTouchStart);
@@ -336,9 +335,7 @@ export default function SketchCurvesWindow() {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      if (tweakpaneUI.current) {
-        tweakpaneUI.current.dispose();
-      }
+      // no cleanup for custom controls
     };
   }, [draw, onMouseDown, onTouchStart, animate]);
 
@@ -378,8 +375,8 @@ export default function SketchCurvesWindow() {
         }}
       />
       <div>
-        <div ref={paneRef} style={{ minWidth: 320 }} />
-        <button 
+        <CustomControls ref={controlsRef} onDraw={draw} />
+        <button
           onClick={downloadCanvas}
           className='button' id="green"
         >
