@@ -1,8 +1,7 @@
 <p align="center">
-  <img src="public/Curvita-192.png" alt="Curvita Logo" width="120"  <h1 align="center">Curvita</h1>/>
+  <img src="public/Curvita-192.png" alt="Curvita Logo" width="120" />
 </p>
-
-
+<h1 align="center">Curvita</h1>
 
 > A polished blend of geometry and style – made with ❤️ using **React** and **Canvas API**.
 
