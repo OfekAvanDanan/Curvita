@@ -67,7 +67,7 @@ select,
 .subttle-button {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  height: 36px; /* גובה זהה ל-dropdown ולצבע */
+  height: 36px; 
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   cursor: pointer;
@@ -80,7 +80,11 @@ select,
 }
 
 .name-edit-container input{
-  width: 132pt;
+  width: 108.25pt;
+}
+
+select{
+  width: 100pt;
 }
 
 input:focus {
@@ -142,7 +146,6 @@ select:hover,
   border-radius: 8px;
 }
 
-/* --- קבוצה של סלאיידר + מספר --- */
 .slider-input-group {
   position: relative;
   display: flex;
@@ -151,8 +154,8 @@ select:hover,
 }
 
 .slider-toggle-button {
-  padding: 0 8px; /* הקטנת הריפוד של הכפתור */
-  height: 36px; /* גובה זהה לשדה המספר */
+  padding: 0 8px; 
+  height: 36px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,6 +212,47 @@ select:hover,
   margin: 0 0 8px 0;
   font-size: 1rem;
   font-weight: 500;
+}
+
+/* סגנון כללי לאלמנטים מושבתים */
+input:disabled,
+select:disabled,
+button:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1335px) {
+  .menu-layout {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .menu-layout .menu-layout {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lable {
+    width: 100%;
+  }
+
+  .slider-input-group {
+    width: 100%;
+  }
+
+  .slider-input-group input[type="number"] {
+    flex: 1;
+  }
+
+  .color-input {
+    width: 100%;
+  }
+
+  select {
+    width: 100%;
+  }
 }
 
 

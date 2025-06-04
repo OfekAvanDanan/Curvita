@@ -290,206 +290,190 @@ function CustomControls({ onDraw }, ref) {
     <div>
       <div className='glassy-panel'>
         <div className='menu-layout'>
-          <label className="lable">
-            Editor
-            <label className="toggle-label">
-              <input
-                type="checkbox"
-                checked={editMode}
-                onChange={(e) => updateEditMode(e.target.checked)}
-                className="toggle-input"
-              />
-              <span className="toggle-slider" />
-            </label></label>
-          <label className="lable">
-            Download
-            <button onClick={downloadCanvas} className="subttle-button" >
-            ↓
-            </button>
-          </label>
+          {/* First row - Toggle and Download */}
           <div className='menu-layout'>
-          <label className='lable'>
-        Background
-        <input
-          type="color"
-          value={backgroundColor}
-          onChange={(e) => updateBackgroundColor(e.target.value)}
-          className="color-input"
-        />
-      </label>
-      <label className='lable'>
-        Current Curve
-        <div className='liniar-layout'>
-          {editingName === currSet ? (
-            <div className="name-edit-container">
+            <label className="lable">
+              Editor
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  checked={editMode}
+                  onChange={(e) => updateEditMode(e.target.checked)}
+                  className="toggle-input"
+                />
+                <span className="toggle-slider" />
+              </label>
+            </label>
+            <label className="lable">
+              Download
+              <button onClick={downloadCanvas} className="subttle-button" >
+                ↓
+              </button>
+            </label>
+          </div>
+
+          {/* Second row - All other controls */}
+          <div className='menu-layout'>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Background
               <input
-                type="text"
-                value={tempName}
-                onChange={handleNameChange}
-                onBlur={handleNameBlur}
-                onKeyDown={handleNameKeyDown}
-                autoFocus
+                type="color"
+                value={backgroundColor}
+                onChange={(e) => updateBackgroundColor(e.target.value)}
+                className="color-input"
+                disabled={!editMode}
               />
-            </div>
-          ) : (
-            <div className='slider-input-group'>
-              <select value={currSet} onChange={(e) => updateCurrSet(e.target.value)}>
-                {PARAMS.sets.map((set, idx) => (
-                  <option key={idx} value={idx}>
-                    {`${set.name} (${idx})`}
-                  </option>
-                ))}
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Current Curve
+              <div className='liniar-layout'>
+                {editingName === currSet ? (
+                  <div className="name-edit-container">
+                    <input
+                      type="text"
+                      value={tempName}
+                      onChange={handleNameChange}
+                      onBlur={handleNameBlur}
+                      onKeyDown={handleNameKeyDown}
+                      autoFocus
+                      disabled={!editMode}
+                    />
+                  </div>
+                ) : (
+                  <div className='slider-input-group'>
+                    <select value={currSet} onChange={(e) => updateCurrSet(e.target.value)} disabled={!editMode}>
+                      {PARAMS.sets.map((set, idx) => (
+                        <option key={idx} value={idx}>
+                          {`${set.name} (${idx})`}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="subttle-button slider-toggle-button"
+                      onClick={(e) => handleEditClick(e, currSet)}
+                      title="Edit curve name"
+                      disabled={!editMode}
+                    >
+                      ✎
+                    </button>
+                  </div>
+                )}
+              </div>
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Stroke Color
+              <input
+                type="color"
+                value={strokeColor}
+                onChange={(e) => updateStrokeColor(e.target.value)}
+                className="color-input"
+                disabled={!editMode}
+              />
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Line Width
+              <div className="slider-input-group">
+                <input
+                  type="number"
+                  min="0.1"
+                  max="200"
+                  step="0.1"
+                  value={lineWidth}
+                  onChange={(e) => updateLineWidthInput(e.target.value)}
+                  disabled={!editMode}
+                />
+                <button className="subttle-button" onClick={() => toggleSliderDropdown('lineWidth')} disabled={!editMode}>
+                  ↔
+                </button>
+                {isLineWidthSliderOpen && (
+                  <div className="slider-dropdown">
+                    <input
+                      type="range"
+                      id="slider-lineWidth"
+                      min="0"
+                      max="100"
+                      defaultValue={Math.sqrt((lineWidth - 0.1) / (200 - 0.1)) * 100}
+                      onInput={(e) => updateLineWidth(e.target.value)}
+                      className="slider"
+                      disabled={!editMode}
+                    />
+                  </div>
+                )}
+              </div>
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Line Cap
+              <select value={lineCap} onChange={(e) => updateLineCap(e.target.value)}>
+                <option value="butt">butt</option>
+                <option value="round">round</option>
+                <option value="square">square</option>
               </select>
-              <button
-                className="subttle-button slider-toggle-button"
-                onClick={(e) => handleEditClick(e, currSet)}
-                title="Edit curve name"
-              >
-                ✎
-              </button>
-            </div>
-          )}
-        </div>
-      </label>
-      <label className='lable'>
-      Stroke Color
-            <input
-              type="color"
-              value={strokeColor}
-              onChange={(e) => updateStrokeColor(e.target.value)}
-              className="color-input"
-            />
-          </label>
-          <label className='lable'>
-            Line Width
-            <div className="slider-input-group">
-              <input
-                type="number"
-                min="0.1"
-                max="200"
-                step="0.1"
-                value={lineWidth}
-                onChange={(e) => updateLineWidthInput(e.target.value)}
-              />
-              <button className="subttle-button" onClick={() => toggleSliderDropdown('lineWidth')}>
-              ↔
-              </button>
-              {isLineWidthSliderOpen && (
-                <div className="slider-dropdown">
-                  <input
-                    type="range"
-                    id="slider-lineWidth"
-                    min="0"
-                    max="100"
-                    defaultValue={Math.sqrt((lineWidth - 0.1) / (200 - 0.1)) * 100}
-                    onInput={(e) => updateLineWidth(e.target.value)}
-                    className="slider"
-                  />
-                </div>
-              )}
-            </div>
-          </label>
-          <label className='lable'>
-            Line Cap
-            <select value={lineCap} onChange={(e) => updateLineCap(e.target.value)}>
-              <option value="butt">butt</option>
-              <option value="round">round</option>
-              <option value="square">square</option>
-            </select>
-          </label>
-
-          <label className='lable'>
-            Number of Parallels
-            <div className="slider-input-group">
-              <input
-                type="number"
-                min="0"
-                max="200"
-                step="1"
-                value={numPar}
-                onChange={(e) => updateNumParInput(e.target.value)}
-              />
-              <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('numPar')}>
-              ↔
-              </button>
-               {isNumParSliderOpen && (
-                <div className="slider-dropdown">
-                  <input
-                    type="range"
-                    id="slider-numPar"
-                    min="0"
-                    max="100"
-                    defaultValue={Math.sqrt(numPar / 200) * 100}
-                    onInput={(e) => updateNumPar(e.target.value)}
-                    className="slider"
-                  />
-                </div>
-              )}
-            </div>
-          </label>
-          <label className='lable'>
-            Distance
-            <div className="slider-input-group">
-               <input
-                type="number"
-                min="2"
-                max="100"
-                step="0.1"
-                value={distPar}
-                onChange={(e) => updateDistParInput(e.target.value)}
-              />
-               <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('distPar')}>
-               ↔
-               </button>
-               {isDistParSliderOpen && (
-                <div className="slider-dropdown">
-                  <input
-                    type="range"
-                    id="slider-distPar"
-                    min="0"
-                    max="100"
-                    defaultValue={Math.sqrt((distPar - 2) / (100 - 2)) * 100}
-                    onInput={(e) => updateDistPar(e.target.value)}
-                    className="slider"
-                  />
-                </div>
-              )}
-            </div>
-          </label>
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Number of Parallels
+              <div className="slider-input-group">
+                <input
+                  type="number"
+                  min="0"
+                  max="200"
+                  step="1"
+                  value={numPar}
+                  onChange={(e) => updateNumParInput(e.target.value)}
+                  disabled={!editMode}
+                />
+                <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('numPar')} disabled={!editMode}>
+                  ↔
+                </button>
+                {isNumParSliderOpen && (
+                  <div className="slider-dropdown">
+                    <input
+                      type="range"
+                      id="slider-numPar"
+                      min="0"
+                      max="100"
+                      defaultValue={Math.sqrt(numPar / 200) * 100}
+                      onInput={(e) => updateNumPar(e.target.value)}
+                      className="slider"
+                      disabled={!editMode}
+                    />
+                  </div>
+                )}
+              </div>
+            </label>
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+              Distance
+              <div className="slider-input-group">
+                <input
+                  type="number"
+                  min="2"
+                  max="100"
+                  step="0.1"
+                  value={distPar}
+                  onChange={(e) => updateDistParInput(e.target.value)}
+                  disabled={!editMode}
+                />
+                <button className="subttle-button slider-toggle-button" onClick={() => toggleSliderDropdown('distPar')} disabled={!editMode}>
+                  ↔
+                </button>
+                {isDistParSliderOpen && (
+                  <div className="slider-dropdown">
+                    <input
+                      type="range"
+                      id="slider-distPar"
+                      min="0"
+                      max="100"
+                      defaultValue={Math.sqrt((distPar - 2) / (100 - 2)) * 100}
+                      onInput={(e) => updateDistPar(e.target.value)}
+                      className="slider"
+                      disabled={!editMode}
+                    />
+                  </div>
+                )}
+              </div>
+            </label>
+          </div>
         </div>
       </div>
-      </div>
-
-
-      
-
-
-
-      {/*  {editMode && (
-        <div className="edit-section">
-          <h4>{`Edit Mode: ${curveName} (${currSet}/${PARAMS.sets.length - 1})`}</h4>
-
-         
-          
-
-          
-
-         
-
-         
-
-          <button onClick={deleteCurve} className="button" id="red">
-            Delete this curve
-          </button>
-            <button onClick={addCurve} className="button" id="green">
-        Add a new curve
-      </button>
-        </div>
-      )} */}
-
-
-
-
     </div>
   );
 }
