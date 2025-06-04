@@ -3,9 +3,11 @@ import React, {
   useEffect,
   useImperativeHandle,
   forwardRef,
+  useRef
 } from 'react';
 import { PARAMS, settings } from './params.js';
 import { Curve } from './classes/Curve.js';
+import { Point } from './classes/Point.js';
 import './CustomControls.css';
 
 function startNewCurve() {
@@ -37,6 +39,7 @@ function CustomControls({ onDraw }, ref) {
   const [isLineWidthSliderOpen, setIsLineWidthSliderOpen] = useState(false);
   const [isNumParSliderOpen, setIsNumParSliderOpen] = useState(false);
   const [isDistParSliderOpen, setIsDistParSliderOpen] = useState(false);
+  const fileInputRef = useRef(null);
 
   const refreshState = () => {
     const idx = PARAMS.currSet;
@@ -254,6 +257,72 @@ function CustomControls({ onDraw }, ref) {
     if (onDraw) onDraw();
   };
 
+  const downloadJson = () => {
+    const data = JSON.stringify(PARAMS.sets, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = 'curvita_data.json';
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const uploadJson = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        // Basic validation to ensure data has expected structure
+        if (Array.isArray(data) && data.every(item => item.curve && Array.isArray(item.curve.points)) ) {
+           // Clear existing sets and load new data
+          PARAMS.sets = []; // Clear existing sets
+          data.forEach(setData => {
+            const newPoints = setData.curve.points.map(p => new Point({ x: p.x, y: p.y }));
+            const curve = new Curve({ points: newPoints });
+            // Copy other properties
+            PARAMS.sets.push({
+               name: setData.name || 'New Curve',
+               curve: curve,
+               color: setData.color || '#ffffff',
+               lineWidth: setData.lineWidth || 5,
+               lineCap: setData.lineCap || 'butt',
+               pairsOdd: setData.pairsOdd || [],
+               pairDouble: setData.pairDouble || [],
+            });
+          });
+
+          // Reset currSet to a valid index if necessary
+          PARAMS.currSet = Math.max(0, Math.min(PARAMS.currSet, PARAMS.sets.length - 1));
+          if (PARAMS.sets.length === 0) { // If no valid sets loaded, start a new one
+              startNewCurve();
+              PARAMS.currSet = 0;
+          }
+
+          refreshState();
+          if (onDraw) onDraw();
+          console.log('Canvas data loaded successfully!');
+        } else {
+          console.error('Invalid JSON format.');
+          alert('Invalid file format. Please upload a valid Curvita JSON file.');
+        }
+      } catch (error) {
+        console.error('Error parsing JSON file:', error);
+        alert('Error reading file. Please ensure it is a valid JSON file.');
+      }
+      // Clear the input value so the same file can be selected again
+      event.target.value = null;
+    };
+    reader.readAsText(file);
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current.click();
+  };
+
   const toggleSliderDropdown = (sliderType) => {
     if (sliderType === 'lineWidth') {
       setIsLineWidthSliderOpen(prevState => !prevState);
@@ -289,14 +358,29 @@ function CustomControls({ onDraw }, ref) {
   return (
     <div className=''>
       <div className='floating-menu'>
-        <button 
-          onClick={() => updateEditMode(!editMode)} 
-          className="subttle-button"
+        <button
+          onClick={() => updateEditMode(!editMode)}
+          className="subttle-button slider-toggle-button"
+          title={editMode ? 'Switch to Viewer' : 'Switch to Editor'}
         >
           {editMode ? 'Viewer' : 'Editor'}
         </button>
-        <button onClick={downloadCanvas} className="subttle-button">
-          Download Artwork
+        <button onClick={downloadCanvas} className="subttle-button slider-toggle-button" title="Download Canvas Artwork (PNG)">
+          Download Canvas
+        </button>
+        
+        <input
+          type="file"
+          accept=".json"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          onChange={uploadJson}
+        />
+        <button onClick={triggerUpload} className="subttle-button slider-toggle-button" title="Upload Curve Data (JSON)">
+        ⬆
+        </button>
+        <button onClick={downloadJson} className="subttle-button slider-toggle-button" title="Download Curve Data (JSON)">
+        ⬇
         </button>
       </div>
 
@@ -392,7 +476,7 @@ function CustomControls({ onDraw }, ref) {
             </label>
             <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
               Line Cap
-              <select value={lineCap} onChange={(e) => updateLineCap(e.target.value)}>
+              <select value={lineCap} onChange={(e) => updateLineCap(e.target.value)} disabled={!editMode}>
                 <option value="butt">butt</option>
                 <option value="round">round</option>
                 <option value="square">square</option>
@@ -460,17 +544,19 @@ function CustomControls({ onDraw }, ref) {
                 )}
               </div>
             </label>
-            
-            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
-                <br/>
-                <div className='slider-input-group'>
-                <button onClick={addCurve} className="subttle-button slider-toggle-button" id ="add-remove">
-                  +
-                </button>
-                <button onClick={deleteCurve} className="subttle-button slider-toggle-button" id ="add-remove">
-                  🗑️
-                </button></div>
-                </label>
+
+            {editMode && (
+              <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+                 <br/>
+                 <div className='slider-input-group'>
+                 <button onClick={addCurve} className="subttle-button slider-toggle-button" title="Add new curve">
+                    +
+                  </button>
+                 <button onClick={deleteCurve} className="subttle-button slider-toggle-button" title="Delete current curve">
+                    🗑️
+                 </button></div>
+                 </label>
+            )}
           </div>
         </div>
       </div>

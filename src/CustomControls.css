@@ -37,7 +37,6 @@
 .floating-menu .subttle-button {
   font-size: 0.9rem;
   padding: 6px 12px;
-  min-width: 100px;
   text-align: center;
   transition: all 0.2s ease;
 }
@@ -45,6 +44,23 @@
 .floating-menu .subttle-button:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
+}
+
+/* Style for the new JSON buttons */
+.floating-menu .subttle-button.json-button {
+  min-width: 40px; /* Make JSON buttons smaller */
+  padding: 6px 8px;
+  font-size: 1rem;
+}
+
+.floating-menu .subttle-button.json-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Hide the actual file input */
+.floating-menu input[type="file"] {
+  display: none;
 }
 
 .glassy-panel {

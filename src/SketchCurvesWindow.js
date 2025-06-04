@@ -347,6 +347,7 @@ export default function SketchCurvesWindow() {
         style={{
           display: 'block'
         }}
+        key={PARAMS.currSet}
       />
       <div>
         <CustomControls ref={controlsRef} onDraw={draw} />
