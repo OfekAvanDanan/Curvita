@@ -13,6 +13,10 @@ export default function SketchCurvesWindow() {
   const prevPointIndexRef = useRef(-1);
   const mouseMoveHandlerRef = useRef(null);
   const mouseUpHandlerRef = useRef(null);
+  const touchMoveHandlerRef = useRef(null);
+  const touchEndHandlerRef = useRef(null);
+  const lastTapTimeRef = useRef(0);
+  const lastTapPointRef = useRef(null);
 
   // Helper to get canvas context
   const getContext = () => {
@@ -111,6 +115,32 @@ export default function SketchCurvesWindow() {
     window.removeEventListener('mouseup', mouseUpHandlerRef.current);
   }, []);
 
+  const onTouchMove = useCallback((e) => {
+    e.preventDefault(); // Prevent scrolling while dragging
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = ((touch.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((touch.clientY - rect.top) / rect.height) * canvas.height;
+    const curve = PARAMS.sets[PARAMS.currSet].curve;
+    curve.points.forEach((point) => {
+      if (point.isDragging && PARAMS.editMode) {
+        point.x = x;
+        point.y = y;
+      }
+    });
+    curve.updateMidPoints();
+    if (curve.getParNum() >= 2) {
+      curve.updateParallels(true);
+    }
+    draw();
+  }, [draw]);
+
+  const onTouchEnd = useCallback(() => {
+    window.removeEventListener('touchmove', touchMoveHandlerRef.current);
+    window.removeEventListener('touchend', touchEndHandlerRef.current);
+  }, []);
+
   const onMouseDown = useCallback((e) => {
     if (!PARAMS.editMode) return;
 
@@ -119,6 +149,45 @@ export default function SketchCurvesWindow() {
     const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
     const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
 
+    handlePointInteraction(x, y, e.button === 2);
+  }, []);
+
+  const onTouchStart = useCallback((e) => {
+    if (!PARAMS.editMode) return;
+    e.preventDefault(); // Prevent default touch behavior
+
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = ((touch.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((touch.clientY - rect.top) / rect.height) * canvas.height;
+
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTapTimeRef.current;
+    
+    // Check if this is a double tap (within 300ms and near the same point)
+    if (lastTapPointRef.current && tapLength < 300) {
+      const lastPoint = lastTapPointRef.current;
+      const dx = lastPoint.x - x;
+      const dy = lastPoint.y - y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist < 20) { // If taps are close enough
+        handlePointInteraction(x, y, true); // true for delete
+        lastTapTimeRef.current = 0; // Reset to prevent triple tap
+        lastTapPointRef.current = null;
+        return;
+      }
+    }
+    
+    // Update last tap info
+    lastTapTimeRef.current = currentTime;
+    lastTapPointRef.current = { x, y };
+    
+    handlePointInteraction(x, y, false);
+  }, []);
+
+  const handlePointInteraction = useCallback((x, y, isRightClick) => {
     // First check if we clicked on any curve
     let clickedCurveIndex = -1;
     for (let i = 0; i < PARAMS.sets.length; i++) {
@@ -176,7 +245,7 @@ export default function SketchCurvesWindow() {
     }
 
     if (clickedPoint) {
-      if (e.button === 2) { // Right click: delete the point
+      if (isRightClick) { // Right click: delete the point
         curve.points.splice(clickedPointIndex, 1);
         curve.updateMidPoints();
         if (PARAMS.currNumOfPar >= 2) {
@@ -219,9 +288,13 @@ export default function SketchCurvesWindow() {
     draw();
     mouseMoveHandlerRef.current = onMouseMove;
     mouseUpHandlerRef.current = onMouseUp;
+    touchMoveHandlerRef.current = onTouchMove;
+    touchEndHandlerRef.current = onTouchEnd;
     window.addEventListener('mousemove', mouseMoveHandlerRef.current);
     window.addEventListener('mouseup', mouseUpHandlerRef.current);
-  }, [draw, onMouseMove, onMouseUp]);
+    window.addEventListener('touchmove', touchMoveHandlerRef.current);
+    window.addEventListener('touchend', touchEndHandlerRef.current);
+  }, [draw, onMouseMove, onMouseUp, onTouchMove, onTouchEnd]);
 
   // Add context menu prevention
   useEffect(() => {
@@ -246,6 +319,7 @@ export default function SketchCurvesWindow() {
     tweakpaneUI.current.createPane();
     
     canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('touchstart', onTouchStart);
     if (settings.animate) animate();
     
     // HMR: Redraw canvas when classes change (for instant feedback)
@@ -257,6 +331,7 @@ export default function SketchCurvesWindow() {
     
     return () => {
       canvas.removeEventListener('mousedown', onMouseDown);
+      canvas.removeEventListener('touchstart', onTouchStart);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
@@ -264,7 +339,7 @@ export default function SketchCurvesWindow() {
         tweakpaneUI.current.dispose();
       }
     };
-  }, [draw, onMouseDown, animate]);
+  }, [draw, onMouseDown, onTouchStart, animate]);
 
   const downloadCanvas = useCallback(() => {
     // Store current edit mode state
