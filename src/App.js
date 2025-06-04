@@ -1,7 +1,7 @@
 import React from 'react';
 import SketchCurvesWindow from './SketchCurvesWindow';
 import './App.css';
-import './TweakpaneVision.css';
+import './CustomControls.css';
 import CurvitaLogo from './media/Curvita.svg';
 import OfekLogo from "./media/Ofek White Icon.svg";
 
