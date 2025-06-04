@@ -75,13 +75,13 @@ h1 {
   width: 100%;
   overflow: hidden;
   border-radius: 16px;
-  margin: 20px 0;
 }
 
 .CanvasBox canvas {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1;
   border-radius: 16px;
 }
 
@@ -204,7 +204,6 @@ h1 {
     width: 100%;
     height: auto;
     aspect-ratio: 1;
-    max-height: 80vh;
     order: 2;
   }
 

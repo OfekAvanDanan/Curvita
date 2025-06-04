@@ -287,32 +287,21 @@ function CustomControls({ onDraw }, ref) {
   }, []);
 
   return (
-    <div>
-      <div className='glassy-panel'>
-        <div className='menu-layout'>
-          {/* First row - Toggle and Download */}
-          <div className='menu-layout'>
-            <label className="lable">
-              Editor
-              <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  checked={editMode}
-                  onChange={(e) => updateEditMode(e.target.checked)}
-                  className="toggle-input"
-                />
-                <span className="toggle-slider" />
-              </label>
-            </label>
-            <label className="lable">
-              Download
-              <button onClick={downloadCanvas} className="subttle-button" >
-                ↓
-              </button>
-            </label>
-          </div>
+    <div className=''>
+      <div className='floating-menu'>
+        <button 
+          onClick={() => updateEditMode(!editMode)} 
+          className="subttle-button"
+        >
+          {editMode ? 'Viewer' : 'Editor'}
+        </button>
+        <button onClick={downloadCanvas} className="subttle-button">
+          Download Artwork
+        </button>
+      </div>
 
-          {/* Second row - All other controls */}
+      <div className='glassy-panel'>
+        <div className='control-pane'>
           <div className='menu-layout'>
             <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
               Background
@@ -471,6 +460,17 @@ function CustomControls({ onDraw }, ref) {
                 )}
               </div>
             </label>
+            
+            <label className='lable' style={{ opacity: editMode ? 1 : 0.6, pointerEvents: editMode ? 'auto' : 'none' }}>
+                <br/>
+                <div className='slider-input-group'>
+                <button onClick={addCurve} className="subttle-button slider-toggle-button" id ="add-remove">
+                  +
+                </button>
+                <button onClick={deleteCurve} className="subttle-button slider-toggle-button" id ="add-remove">
+                  🗑️
+                </button></div>
+                </label>
           </div>
         </div>
       </div>
