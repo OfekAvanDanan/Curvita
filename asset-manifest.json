@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/Curvita/static/css/main.ad75fd59.css",
-    "main.js": "/Curvita/static/js/main.566aff1f.js",
+    "main.js": "/Curvita/static/js/main.e0df398b.js",
     "static/js/453.e3e283b3.chunk.js": "/Curvita/static/js/453.e3e283b3.chunk.js",
     "static/media/Ofek White Icon.svg": "/Curvita/static/media/Ofek White Icon.04b93237d6d896bcae92059aab0ee599.svg",
     "static/media/Curvita.svg": "/Curvita/static/media/Curvita.0ed04cdf194cfa1458f7e832545d9721.svg",
     "index.html": "/Curvita/index.html",
     "main.ad75fd59.css.map": "/Curvita/static/css/main.ad75fd59.css.map",
-    "main.566aff1f.js.map": "/Curvita/static/js/main.566aff1f.js.map",
+    "main.e0df398b.js.map": "/Curvita/static/js/main.e0df398b.js.map",
     "453.e3e283b3.chunk.js.map": "/Curvita/static/js/453.e3e283b3.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ad75fd59.css",
-    "static/js/main.566aff1f.js"
+    "static/js/main.e0df398b.js"
   ]
 }
