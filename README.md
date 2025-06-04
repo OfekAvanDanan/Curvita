@@ -1,5 +1,8 @@
-# ![alt text](public/Curvita-192.png) Curvita
-**Curvita** is a minimalistic curve-drawing playground, designed for creative expression through smooth bezier lines and dynamic parallel curves.
+<p align="center">
+  <img src="public/Curvita-192.png" alt="Curvita Logo" width="120"  <h1 align="center">Curvita</h1>/>
+</p>
+
+
 
 > A polished blend of geometry and style – made with ❤️ using **React** and **Canvas API**.
 
