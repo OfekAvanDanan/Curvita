@@ -335,34 +335,8 @@ export default function SketchCurvesWindow() {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      // no cleanup for custom controls
     };
   }, [draw, onMouseDown, onTouchStart, animate]);
-
-  const downloadCanvas = useCallback(() => {
-    // Store current edit mode state
-    const wasEditMode = PARAMS.editMode;
-    
-    // Temporarily disable edit mode
-    PARAMS.editMode = false;
-    
-    // Redraw without guides
-    draw();
-    
-    // Get the canvas data URL
-    const canvas = canvasRef.current;
-    const dataURL = canvas.toDataURL('image/png');
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.download = 'curvita-design.png';
-    link.href = dataURL;
-    link.click();
-    
-    // Restore edit mode state
-    PARAMS.editMode = wasEditMode;
-    draw();
-  }, [draw]);
 
   return (
     <div className="CanvasBox">
@@ -376,12 +350,6 @@ export default function SketchCurvesWindow() {
       />
       <div>
         <CustomControls ref={controlsRef} onDraw={draw} />
-        <button
-          onClick={downloadCanvas}
-          className='button' id="green"
-        >
-          Download Design
-        </button>
       </div>
     </div>
   );

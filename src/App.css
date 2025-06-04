@@ -97,7 +97,7 @@ h1 {
 .info {
   text-align: center;
   font-size: 0.85rem;
-  opacity: 0.6;
+  color: #ffffff9d;
   margin-top: 1.5rem;
 }
 
@@ -138,7 +138,7 @@ h1 {
   background-color: #2db451;
 }
 
-/* Mobile responsiveness */
+/* Mobile layout */
 @media (max-width: 768px) {
   .App {
     padding: 10px;
@@ -167,24 +167,55 @@ h1 {
   #app-icon {
     width: 40pt;
   }
+
+  .CanvasBox {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .CanvasBox canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    order: 1;
+  }
+
+  .CanvasBox > div {
+    width: 100%;
+    padding: 0 10px;
+    order: 2;
+  }
 }
 
 /* Desktop layout */
 @media (min-width: 769px) {
   .CanvasBox {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 24px;
-    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .CanvasBox canvas {
-    width: 540px;
-    height: 540px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    max-height: 80vh;
+    order: 2;
   }
 
   .CanvasBox > div {
-    flex: 1;
-    min-width: 320px;
+    width: 100%;
+    padding: 0 20px;
+    order: 1;
   }
+}
+
+.liniar-layout{
+  display: flex;
+  gap: 5px;
 }
