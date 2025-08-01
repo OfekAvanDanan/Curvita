@@ -264,10 +264,13 @@ export default function SketchCurvesWindow() {
       const newPoint = new Point({ x, y });
 
       // If the first point was selected, add new point before it
+      let newIndex;
       if (prevPointIndexRef.current === 0) {
         curve.points.unshift(newPoint);
+        newIndex = 0;
       } else {
         curve.points.push(newPoint);
+        newIndex = curve.points.length - 1;
       }
 
       // Reset selection for all points
@@ -278,6 +281,8 @@ export default function SketchCurvesWindow() {
 
       // Select the new point
       newPoint.isSelected = true;
+      // Remember the newly added point as the previous point
+      prevPointIndexRef.current = newIndex;
 
       curve.updateMidPoints();
       if (PARAMS.currNumOfPar >= 2) {
